@@ -21,17 +21,17 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
       <TikTokHeader />
 
       <div className="flex-1 flex flex-col px-6 pt-10">
-        <h1 className="text-2xl font-semibold text-center mb-2">Welcome, User</h1>
-        <p className="text-sm text-muted-foreground text-center mb-8">Sign in to access your wallet</p>
+        <h1 className="text-2xl font-semibold text-center mb-2">Bienvenido/a</h1>
+        <p className="text-sm text-muted-foreground text-center mb-8">Inicia sesión para acceder a tu cartera</p>
 
         {/* Prize card */}
         <div className="rounded-2xl bg-secondary border border-border/60 p-6 mb-10 text-center shadow-sm">
           <div className="flex items-center justify-center gap-2 mb-3">
             <Gift className="w-5 h-5 text-success" />
-            <span className="text-sm font-semibold text-muted-foreground">Your Reward Balance</span>
+            <span className="text-sm font-semibold text-muted-foreground">Tu saldo de recompensa</span>
           </div>
-          <p className="text-[42px] font-bold tracking-tighter leading-none">$2,893.27</p>
-          <p className="text-xs text-muted-foreground mt-3">Login & verify your identity to withdraw</p>
+          <p className="text-[42px] font-bold tracking-tighter leading-none">$ 4,596 MXN</p>
+          <p className="text-xs text-muted-foreground mt-3">Inicia sesión y verifica tu identidad para retirar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -41,7 +41,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="Email address"
+                placeholder="Correo electrónico"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 rounded-full bg-secondary border-0 pl-11 pr-5"
@@ -54,18 +54,18 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
             type="submit"
             className="w-full h-14 rounded-full text-base font-semibold"
           >
-            Log in
+            Iniciar sesión
           </Button>
 
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
             <Lock className="w-3 h-3 inline mr-1 -mt-px" />
-            Secured by TikTok · 256-bit encryption
+            Protegido por TikTok · Cifrado de 256 bits
           </p>
         </form>
       </div>
 
       <footer className="py-6 text-center">
-        <span className="text-xs text-muted-foreground">© 2025 TikTok · All rights reserved</span>
+        <span className="text-xs text-muted-foreground">© 2025 TikTok · Todos los derechos reservados</span>
       </footer>
     </div>
   );
