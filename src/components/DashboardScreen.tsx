@@ -12,8 +12,9 @@ interface DashboardScreenProps {
   userName: string;
 }
 
-const BALANCE_AMOUNT = 4596;
-const formatMXN = (value: number) => `$ ${value.toLocaleString("es-MX")} MXN`;
+const BALANCE_AMOUNT = 1234.56;
+const formatMXN = (value: number) =>
+  value.toLocaleString("es-ES", { style: "currency", currency: "EUR" });
 
 const DashboardSkeleton = () => (
   <div className="min-h-screen flex flex-col bg-surface">
@@ -127,10 +128,10 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
       return { text: "Documentos en revisión — normalmente 1-3 días hábiles", color: "text-warning" };
     }
     if (status.cashoutStatus === "failed") {
-      return { text: "Verificación bancaria requerida — contacta a soporte", color: "text-destructive" };
+      return { text: "Verificación bancaria requerida — contacta con soporte", color: "text-destructive" };
     }
     if (status.cashoutStatus === "processing") {
-      return { text: "Retiro procesando — por favor espera", color: "text-warning" };
+      return { text: "Cobro procesándose — por favor espera", color: "text-warning" };
     }
     if (status.cashoutStatus === "completed") {
       return { text: "¡Identidad verificada — todo listo!", color: "text-success" };
@@ -142,9 +143,9 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
   // Withdraw hint
   const getWithdrawHint = () => {
-    if (status.docStatus !== "approved") return "Completa la verificación para retirar";
-    if (status.cashoutStatus === "failed") return "Resuelve la verificación bancaria para retirar";
-    if (status.cashoutStatus === "processing") return "Retiro procesando — por favor espera";
+    if (status.docStatus !== "approved") return "Completa la verificación para cobrar";
+    if (status.cashoutStatus === "failed") return "Resuelve la verificación bancaria para cobrar";
+    if (status.cashoutStatus === "processing") return "Cobro procesándose — por favor espera";
     return null;
   };
 
@@ -183,7 +184,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
           <div className="flex items-start">
             <Step icon={<FileText className="w-4 h-4" />} label="Documentos" subtitle={docSubtitle} state={docStep} />
             <Step icon={<Building className="w-4 h-4" />} label="Banco" subtitle={bankSubtitle} state={bankStep} />
-            <Step icon={<CreditCard className="w-4 h-4" />} label="Retiro" subtitle={withdrawSubtitle} state={withdrawStep} isLast />
+            <Step icon={<CreditCard className="w-4 h-4" />} label="Cobro" subtitle={withdrawSubtitle} state={withdrawStep} isLast />
           </div>
           {statusMsg && (
             <p className={`text-xs mt-4 ${statusMsg.color}`}>{statusMsg.text}</p>
@@ -201,7 +202,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
             }`}
           >
             <Wallet className="w-4 h-4 mr-2" />
-            Retirar fondos
+            Cobrar fondos
           </Button>
           {withdrawHint && (
             <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
@@ -233,7 +234,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold">Retiro</p>
+                  <p className="text-sm font-semibold">Cobro</p>
                   <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 font-semibold border ${cashoutBadge.className}`}>
                     {cashoutBadge.label}
                   </Badge>
@@ -269,7 +270,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
         <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground/70">
           <a href="#" className="hover:text-foreground transition-colors">Términos del servicio</a>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Aviso de privacidad</a>
+          <a href="#" className="hover:text-foreground transition-colors">Política de privacidad</a>
           <span>·</span>
           <a href="#" className="hover:text-foreground transition-colors">Centro de ayuda</a>
         </div>
