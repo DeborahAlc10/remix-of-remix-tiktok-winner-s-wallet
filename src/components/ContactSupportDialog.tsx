@@ -46,9 +46,9 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">Contactar a soporte</DialogTitle>
+          <DialogTitle className="text-lg font-bold">Contactar con soporte</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            ¿Tienes alguna duda o necesitas ayuda? Llena el formulario y nuestro equipo te contactará lo antes posible.
+            ¿Tenéis alguna duda o necesitáis ayuda? Rellena el formulario y nuestro equipo se pondrá en contacto contigo lo antes posible.
           </DialogDescription>
         </DialogHeader>
 
@@ -56,7 +56,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-foreground">Nombre completo</label>
             <Input
-              placeholder="Ingresa tu nombre completo"
+              placeholder="Introduce tu nombre completo"
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={100}
@@ -67,7 +67,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
             <label className="text-sm font-semibold text-foreground">Correo electrónico</label>
             <Input
               type="email"
-              placeholder="Ingresa tu correo electrónico"
+              placeholder="Introduce tu correo electrónico"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               maxLength={255}
@@ -84,7 +84,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
                 <SelectItem value="general">Pregunta general</SelectItem>
                 <SelectItem value="transaction">Problema con una transacción</SelectItem>
                 <SelectItem value="account">Problema con la cuenta</SelectItem>
-                <SelectItem value="withdrawal">Estado del retiro</SelectItem>
+                <SelectItem value="withdrawal">Estado del cobro</SelectItem>
                 <SelectItem value="other">Otro</SelectItem>
               </SelectContent>
             </Select>
@@ -93,7 +93,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-foreground">Mensaje</label>
             <Textarea
-              placeholder="Describe tu pregunta o problema con detalle..."
+              placeholder="Describe tu consulta o problema con detalle..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               maxLength={1000}

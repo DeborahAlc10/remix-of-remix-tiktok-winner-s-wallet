@@ -21,7 +21,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
       <TikTokHeader />
 
       <div className="flex-1 flex flex-col px-6 pt-10">
-        <h1 className="text-2xl font-semibold text-center mb-2">Bienvenido/a</h1>
+        <h1 className="text-2xl font-semibold text-center mb-2">Bienvenido/a de nuevo</h1>
         <p className="text-sm text-muted-foreground text-center mb-8">Inicia sesión para acceder a tu cartera</p>
 
         {/* Prize card */}
@@ -30,8 +30,10 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
             <Gift className="w-5 h-5 text-success" />
             <span className="text-sm font-semibold text-muted-foreground">Tu saldo de recompensa</span>
           </div>
-          <p className="text-[42px] font-bold tracking-tighter leading-none">$ 4,596 MXN</p>
-          <p className="text-xs text-muted-foreground mt-3">Inicia sesión y verifica tu identidad para retirar</p>
+          <p className="text-[42px] font-bold tracking-tighter leading-none">
+            {(1234.56).toLocaleString("es-ES", { style: "currency", currency: "EUR" })}
+          </p>
+          <p className="text-xs text-muted-foreground mt-3">Inicia sesión y verifica tu identidad para cobrar</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
