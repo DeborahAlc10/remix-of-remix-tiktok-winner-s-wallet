@@ -16,10 +16,10 @@ interface UploadField {
 }
 
 const fields: UploadField[] = [
-  { label: "Documento de identidad (anverso)", description: "Sube el anverso de tu DNI, pasaporte o carnet de conducir", key: "id_front" },
+  { label: "Documento de identidad (frente)", description: "Sube el frente de tu INE, pasaporte o licencia de conducir", key: "id_front" },
   { label: "Documento de identidad (reverso)", description: "Sube el reverso de tu documento de identidad", key: "id_back" },
-  { label: "Justificante de domicilio", description: "Recibo de servicios o extracto bancario (últimos 3 meses)", key: "residence" },
-  { label: "Selfie con documento", description: "Hazte un selfie sosteniendo tu documento de identidad", key: "selfie" },
+  { label: "Comprobante de domicilio", description: "Recibo de servicios o estado de cuenta (últimos 3 meses)", key: "residence" },
+  { label: "Selfie con documento", description: "Tómate una selfie sosteniendo tu documento de identidad", key: "selfie" },
 ];
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
