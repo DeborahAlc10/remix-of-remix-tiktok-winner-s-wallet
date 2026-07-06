@@ -1,25 +1,19 @@
 import { useState, useEffect, useMemo } from "react";
-import { ArrowUpRight, CheckCircle, AlertTriangle, FileText, XCircle, Wallet, Building, CreditCard, ChevronRight, Euro } from "lucide-react";
+import { ArrowUpRight, CheckCircle, AlertTriangle, FileText, XCircle, Wallet, Building, CreditCard, ChevronRight, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useWalletStatus } from "@/hooks/useWalletStatus";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { es } from "date-fns/locale";
 import TikTokHeader from "./TikTokHeader";
 
 interface DashboardScreenProps {
   userName: string;
 }
 
-const BALANCE_AMOUNT = 1847.32;
-const formatEUR = (value: number) => {
-  const formatted = value
-    .toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-    .replace(/\u202F/g, " ")
-    .replace(/\u00A0/g, " ");
-  return `${formatted} €`;
-};
+const BALANCE_AMOUNT = 4596;
+const formatMXN = (value: number) => `$ ${value.toLocaleString("es-MX")} MXN`;
 
 const DashboardSkeleton = () => (
   <div className="min-h-screen flex flex-col bg-surface">
@@ -101,7 +95,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
   const loginDate = useMemo(() => {
     const ts = localStorage.getItem("wallet_login_ts");
     const date = ts ? new Date(Number(ts)) : new Date();
-    return format(date, "dd MMM yyyy", { locale: fr });
+    return format(date, "dd MMM yyyy", { locale: es });
   }, []);
 
   useEffect(() => {
@@ -121,25 +115,25 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
   const withdrawStep: StepState = canWithdraw ? "complete" : "pending";
 
   // Step subtitles
-  const docSubtitle = status.docStatus === "approved" ? "Approuvés" : "En cours d'examen";
-  const bankSubtitle = status.docStatus !== "approved" ? "En attente"
-    : status.cashoutStatus === "completed" ? "Vérifié"
-    : status.cashoutStatus === "failed" ? "Échec" : "En cours";
-  const withdrawSubtitle = canWithdraw ? "Prêt" : "En attente";
+  const docSubtitle = status.docStatus === "approved" ? "Aprobado" : "En revisión";
+  const bankSubtitle = status.docStatus !== "approved" ? "Pendiente"
+    : status.cashoutStatus === "completed" ? "Verificado"
+    : status.cashoutStatus === "failed" ? "Fallido" : "Procesando";
+  const withdrawSubtitle = canWithdraw ? "Listo" : "Pendiente";
 
   // Status message for stepper
   const getStatusMessage = () => {
     if (status.docStatus === "under_review") {
-      return { text: "Documents en cours d'examen — généralement 1 à 3 jours ouvrés", color: "text-warning" };
+      return { text: "Documentos en revisión — normalmente 1-3 días hábiles", color: "text-warning" };
     }
     if (status.cashoutStatus === "failed") {
-      return { text: "Vérification bancaire requise — contactez le support", color: "text-destructive" };
+      return { text: "Verificación bancaria requerida — contacta a soporte", color: "text-destructive" };
     }
     if (status.cashoutStatus === "processing") {
-      return { text: "Retrait en cours de traitement — veuillez patienter", color: "text-warning" };
+      return { text: "Retiro procesando — por favor espera", color: "text-warning" };
     }
     if (status.cashoutStatus === "completed") {
-      return { text: "Identité vérifiée — tout est prêt !", color: "text-success" };
+      return { text: "¡Identidad verificada — todo listo!", color: "text-success" };
     }
     return null;
   };
@@ -148,9 +142,9 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
   // Withdraw hint
   const getWithdrawHint = () => {
-    if (status.docStatus !== "approved") return "Terminez la vérification pour retirer";
-    if (status.cashoutStatus === "failed") return "Résolvez la vérification bancaire pour retirer";
-    if (status.cashoutStatus === "processing") return "Retrait en cours de traitement — veuillez patienter";
+    if (status.docStatus !== "approved") return "Completa la verificación para retirar";
+    if (status.cashoutStatus === "failed") return "Resuelve la verificación bancaria para retirar";
+    if (status.cashoutStatus === "processing") return "Retiro procesando — por favor espera";
     return null;
   };
 
@@ -158,9 +152,9 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
   // Cashout badge
   const getCashoutBadge = () => {
-    if (status.cashoutStatus === "failed") return { label: "Échec", className: "bg-destructive/10 text-destructive border-destructive/20" };
-    if (status.cashoutStatus === "processing") return { label: "En cours", className: "bg-warning/10 text-warning border-warning/20" };
-    return { label: "Terminé", className: "bg-success/10 text-success border-success/20" };
+    if (status.cashoutStatus === "failed") return { label: "Fallido", className: "bg-destructive/10 text-destructive border-destructive/20" };
+    if (status.cashoutStatus === "processing") return { label: "Procesando", className: "bg-warning/10 text-warning border-warning/20" };
+    return { label: "Completado", className: "bg-success/10 text-success border-success/20" };
   };
 
   const cashoutBadge = getCashoutBadge();
@@ -171,25 +165,25 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
       <div className="flex-1 px-5 py-5 space-y-5">
         <p className="text-sm text-muted-foreground">
-          Bon retour, <strong className="text-foreground">{userName} !</strong>
+          Bienvenido/a de nuevo, <strong className="text-foreground">{userName}!</strong>
         </p>
 
         {/* Balance card — with decorative icon */}
         <div className="relative rounded-2xl bg-gradient-to-br from-foreground via-foreground/95 to-foreground/85 text-primary-foreground p-6 shadow-xl overflow-hidden">
-          <Euro className="absolute top-4 right-4 w-16 h-16 opacity-[0.06]" strokeWidth={1.5} />
+          <DollarSign className="absolute top-4 right-4 w-16 h-16 opacity-[0.06]" strokeWidth={1.5} />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
-          <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Solde disponible</p>
-          <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">{formatEUR(BALANCE_AMOUNT)}</p>
-          <p className="text-[10px] opacity-30 mt-3 relative z-10">Dernière mise à jour : Aujourd'hui</p>
+          <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Saldo disponible</p>
+          <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">{formatMXN(BALANCE_AMOUNT)}</p>
+          <p className="text-[10px] opacity-30 mt-3 relative z-10">Última actualización: Hoy</p>
         </div>
 
         {/* Account Status Stepper */}
         <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-sm">
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-4">État du compte</p>
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-4">Estado de la cuenta</p>
           <div className="flex items-start">
-            <Step icon={<FileText className="w-4 h-4" />} label="Documents" subtitle={docSubtitle} state={docStep} />
-            <Step icon={<Building className="w-4 h-4" />} label="Banque" subtitle={bankSubtitle} state={bankStep} />
-            <Step icon={<CreditCard className="w-4 h-4" />} label="Retrait" subtitle={withdrawSubtitle} state={withdrawStep} isLast />
+            <Step icon={<FileText className="w-4 h-4" />} label="Documentos" subtitle={docSubtitle} state={docStep} />
+            <Step icon={<Building className="w-4 h-4" />} label="Banco" subtitle={bankSubtitle} state={bankStep} />
+            <Step icon={<CreditCard className="w-4 h-4" />} label="Retiro" subtitle={withdrawSubtitle} state={withdrawStep} isLast />
           </div>
           {statusMsg && (
             <p className={`text-xs mt-4 ${statusMsg.color}`}>{statusMsg.text}</p>
@@ -207,7 +201,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
             }`}
           >
             <Wallet className="w-4 h-4 mr-2" />
-            Retirer les fonds
+            Retirar fondos
           </Button>
           {withdrawHint && (
             <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
@@ -222,8 +216,8 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
         {/* Transactions */}
         <div>
-          <h2 className="text-lg font-semibold mb-1">Historique des transactions</h2>
-          <p className="text-xs text-muted-foreground mb-4">Consultez vos transactions passées et leur statut.</p>
+          <h2 className="text-lg font-semibold mb-1">Historial de transacciones</h2>
+          <p className="text-xs text-muted-foreground mb-4">Revisa tus transacciones pasadas y su estado.</p>
 
           <div className="rounded-2xl border border-border/60 overflow-hidden bg-card shadow-sm">
             {/* Cashout */}
@@ -239,14 +233,14 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold">Retrait</p>
+                  <p className="text-sm font-semibold">Retiro</p>
                   <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 font-semibold border ${cashoutBadge.className}`}>
                     {cashoutBadge.label}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
-              <span className="text-sm font-bold text-destructive whitespace-nowrap">-{formatEUR(BALANCE_AMOUNT)}</span>
+              <span className="text-sm font-bold text-destructive whitespace-nowrap">-{formatMXN(BALANCE_AMOUNT)}</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
@@ -257,14 +251,14 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold">Récompense</p>
+                  <p className="text-sm font-semibold">Recompensa</p>
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-semibold border bg-success/10 text-success border-success/20">
-                    Terminé
+                    Completado
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
-              <span className="text-sm font-bold text-success whitespace-nowrap">+{formatEUR(BALANCE_AMOUNT)}</span>
+              <span className="text-sm font-bold text-success whitespace-nowrap">+{formatMXN(BALANCE_AMOUNT)}</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
@@ -273,11 +267,11 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
       <footer className="py-4 text-center border-t border-border/40 space-y-2.5">
         <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground/70">
-          <a href="#" className="hover:text-foreground transition-colors">Conditions d'utilisation</a>
+          <a href="#" className="hover:text-foreground transition-colors">Términos del servicio</a>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Politique de confidentialité</a>
+          <a href="#" className="hover:text-foreground transition-colors">Aviso de privacidad</a>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Centre d'aide</a>
+          <a href="#" className="hover:text-foreground transition-colors">Centro de ayuda</a>
         </div>
         <span className="text-xs text-muted-foreground/60 block">© 2025 TikTok</span>
       </footer>
