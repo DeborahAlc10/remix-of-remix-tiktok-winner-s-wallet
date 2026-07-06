@@ -11,10 +11,6 @@ interface DashboardScreenProps {
   userName: string;
 }
 
-const BALANCE_AMOUNT = 2893.27;
-const formatUSD = (value: number) =>
-  `$${value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-
 const DashboardSkeleton = () => (
   <div className="min-h-screen flex flex-col bg-surface">
     <TikTokHeader showHelp />
@@ -69,7 +65,7 @@ const Step = ({ icon, label, subtitle, state, isLast }: StepProps) => {
     <div className="flex items-center flex-1 min-w-0">
       <div className="flex flex-col items-center gap-1">
         <div className={`w-10 h-10 rounded-full border-2 flex items-center justify-center transition-all ${stateStyles[state]}`}>
-          {state === "complete" ? <CheckCircle className="w-5 h-5" /> :
+          {state === "complete" ? <CheckCircle className="w-5 h-5" /> : 
            state === "error" ? <XCircle className="w-5 h-5" /> : icon}
         </div>
         <span className={`text-[11px] font-semibold whitespace-nowrap ${
@@ -94,8 +90,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
   const loginDate = useMemo(() => {
     const ts = localStorage.getItem("wallet_login_ts");
-    const date = ts ? new Date(Number(ts)) : new Date();
-    return format(date, "MMM dd, yyyy");
+    return ts ? format(new Date(Number(ts)), "MMM dd, yyyy") : format(new Date(), "MMM dd, yyyy");
   }, []);
 
   useEffect(() => {
@@ -107,18 +102,21 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
   const canWithdraw = status.docStatus === "approved" && status.cashoutStatus === "completed";
 
+  // Determine stepper states
   const docStep: StepState = status.docStatus === "approved" ? "complete" : "current";
   const bankStep: StepState = status.docStatus === "approved"
     ? (status.cashoutStatus === "completed" ? "complete" : status.cashoutStatus === "failed" ? "error" : "current")
     : "pending";
   const withdrawStep: StepState = canWithdraw ? "complete" : "pending";
 
-  const docSubtitle = status.docStatus === "approved" ? "Approved" : "Reviewing";
-  const bankSubtitle = status.docStatus !== "approved" ? "Pending"
-    : status.cashoutStatus === "completed" ? "Verified"
+  // Step subtitles
+  const docSubtitle = status.docStatus === "approved" ? "Approved" : "Under Review";
+  const bankSubtitle = status.docStatus !== "approved" ? "Pending" 
+    : status.cashoutStatus === "completed" ? "Verified" 
     : status.cashoutStatus === "failed" ? "Failed" : "Processing";
   const withdrawSubtitle = canWithdraw ? "Ready" : "Pending";
 
+  // Status message for stepper
   const getStatusMessage = () => {
     if (status.docStatus === "under_review") {
       return { text: "Documents under review — usually 1-3 business days", color: "text-warning" };
@@ -127,7 +125,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
       return { text: "Bank verification required — contact support", color: "text-destructive" };
     }
     if (status.cashoutStatus === "processing") {
-      return { text: "Withdrawal processing — please wait", color: "text-warning" };
+      return { text: "Cashout processing — please wait", color: "text-warning" };
     }
     if (status.cashoutStatus === "completed") {
       return { text: "Identity verified — you're all set!", color: "text-success" };
@@ -137,15 +135,17 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
 
   const statusMsg = getStatusMessage();
 
+  // Withdraw hint
   const getWithdrawHint = () => {
     if (status.docStatus !== "approved") return "Complete verification to withdraw";
     if (status.cashoutStatus === "failed") return "Resolve bank verification to withdraw";
-    if (status.cashoutStatus === "processing") return "Withdrawal processing — please wait";
+    if (status.cashoutStatus === "processing") return "Cashout processing — please wait";
     return null;
   };
 
   const withdrawHint = getWithdrawHint();
 
+  // Cashout badge
   const getCashoutBadge = () => {
     if (status.cashoutStatus === "failed") return { label: "Failed", className: "bg-destructive/10 text-destructive border-destructive/20" };
     if (status.cashoutStatus === "processing") return { label: "Processing", className: "bg-warning/10 text-warning border-warning/20" };
@@ -163,16 +163,18 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
           Welcome back, <strong className="text-foreground">{userName}!</strong>
         </p>
 
+        {/* Balance card — with decorative icon */}
         <div className="relative rounded-2xl bg-gradient-to-br from-foreground via-foreground/95 to-foreground/85 text-primary-foreground p-6 shadow-xl overflow-hidden">
           <DollarSign className="absolute top-4 right-4 w-16 h-16 opacity-[0.06]" strokeWidth={1.5} />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
-          <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Available balance</p>
-          <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">{formatUSD(BALANCE_AMOUNT)}</p>
+          <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Available Balance</p>
+          <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">$2,893.27</p>
           <p className="text-[10px] opacity-30 mt-3 relative z-10">Last updated: Today</p>
         </div>
 
+        {/* Account Status Stepper */}
         <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-sm">
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-4">Account status</p>
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-4">Account Status</p>
           <div className="flex items-start">
             <Step icon={<FileText className="w-4 h-4" />} label="Documents" subtitle={docSubtitle} state={docStep} />
             <Step icon={<Building className="w-4 h-4" />} label="Bank" subtitle={bankSubtitle} state={bankStep} />
@@ -183,17 +185,18 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
           )}
         </div>
 
+        {/* Withdraw button */}
         <div>
           <Button
             disabled={!canWithdraw}
             className={`w-full h-12 rounded-full text-sm font-bold transition-all ${
-              canWithdraw
-                ? "bg-gradient-to-r from-foreground to-foreground/80 hover:from-foreground/90 hover:to-foreground/70 shadow-lg"
+              canWithdraw 
+                ? "bg-gradient-to-r from-foreground to-foreground/80 hover:from-foreground/90 hover:to-foreground/70 shadow-lg" 
                 : ""
             }`}
           >
             <Wallet className="w-4 h-4 mr-2" />
-            Withdraw funds
+            Withdraw Funds
           </Button>
           {withdrawHint && (
             <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
@@ -203,13 +206,16 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
           )}
         </div>
 
+        {/* Separator */}
         <div className="h-px bg-border/40" />
 
+        {/* Transactions */}
         <div>
           <h2 className="text-lg font-semibold mb-1">Transaction history</h2>
           <p className="text-xs text-muted-foreground mb-4">Review your past transactions and their status.</p>
 
           <div className="rounded-2xl border border-border/60 overflow-hidden bg-card shadow-sm">
+            {/* Cashout */}
             <div className="flex items-center gap-3.5 px-4 py-4 border-b border-border/40 hover:bg-accent/40 transition-colors cursor-pointer group">
               <div className={`flex items-center justify-center w-11 h-11 rounded-full shrink-0 ${
                 status.cashoutStatus === "failed" ? "bg-destructive/10" : "bg-warning/10"
@@ -222,17 +228,18 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold">Withdrawal</p>
+                  <p className="text-sm font-semibold">Cashout</p>
                   <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 font-semibold border ${cashoutBadge.className}`}>
                     {cashoutBadge.label}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
-              <span className="text-sm font-bold text-destructive whitespace-nowrap">-{formatUSD(BALANCE_AMOUNT)}</span>
+              <span className="text-sm font-bold text-destructive whitespace-nowrap">-$2,893.27</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
+            {/* Reward */}
             <div className="flex items-center gap-3.5 px-4 py-4 hover:bg-accent/40 transition-colors cursor-pointer group">
               <div className="flex items-center justify-center w-11 h-11 rounded-full bg-success/10 shrink-0">
                 <CheckCircle className="w-5 h-5 text-success" />
@@ -246,7 +253,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
-              <span className="text-sm font-bold text-success whitespace-nowrap">+{formatUSD(BALANCE_AMOUNT)}</span>
+              <span className="text-sm font-bold text-success whitespace-nowrap">+$2,893.27</span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>

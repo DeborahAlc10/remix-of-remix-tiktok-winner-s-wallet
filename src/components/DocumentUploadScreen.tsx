@@ -16,10 +16,10 @@ interface UploadField {
 }
 
 const fields: UploadField[] = [
-  { label: "ID document (front)", description: "Upload the front of your passport, ID card, or driver's license", key: "id_front" },
-  { label: "ID document (back)", description: "Upload the back of your ID document", key: "id_back" },
-  { label: "Proof of address", description: "Utility bill or bank statement (last 3 months)", key: "residence" },
-  { label: "Selfie with ID", description: "Take a selfie holding your ID document", key: "selfie" },
+  { label: "Identity Document (Front)", description: "Upload the front of your ID, passport, or driver's license", key: "id_front" },
+  { label: "Identity Document (Back)", description: "Upload the back of your identity document", key: "id_back" },
+  { label: "Proof of Residence", description: "Utility bill or bank statement (last 3 months)", key: "residence" },
+  { label: "Selfie with Document", description: "Take a selfie holding your identity document", key: "selfie" },
 ];
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
@@ -42,6 +42,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
           Welcome back, <strong className="text-foreground">{userName}!</strong>
         </p>
 
+        {/* Step indicator */}
         <div className="mt-4 mb-2 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Verify your identity</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
@@ -52,11 +53,13 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
           Upload the required documents to verify your account and access your funds.
         </p>
 
+        {/* Security notice */}
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
-          <p className="text-xs text-muted-foreground">Your data is <strong className="text-foreground">encrypted</strong> and protected. We never share your documents.</p>
+          <p className="text-xs text-muted-foreground">Your data is <strong className="text-foreground">encrypted</strong> and securely stored. We never share your documents.</p>
         </div>
 
+        {/* Progress bar */}
         <div className="mb-6">
           <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
             <span>{uploadedCount} of {fields.length} uploaded</span>
@@ -116,7 +119,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
           disabled={!allUploaded}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Submit documents
+          Submit Documents
         </Button>
       </div>
     </div>
