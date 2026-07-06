@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldCheck, ChevronRight, Building2, Wallet } from "lucide-react";
+import { ShieldCheck, ChevronRight, Building2, Wallet, DollarSign, Smartphone, Mail, Globe } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import TikTokHeader from "./TikTokHeader";
 
 interface BankDetailsScreenProps {
@@ -10,26 +17,22 @@ interface BankDetailsScreenProps {
 }
 
 const WITHDRAWAL_METHODS = [
-  {
-    id: "bank",
-    label: "Bank transfer (ACH)",
-    subtitle: "1-3 business days",
-    icon: Building2,
-  },
-  {
-    id: "paypal",
-    label: "PayPal",
-    subtitle: "Sent to your PayPal email",
-    icon: Wallet,
-  },
+  { id: "bank", label: "Bank transfer", subtitle: "Direct deposit to your bank", icon: Building2 },
+  { id: "paypal", label: "PayPal", subtitle: "Send to your PayPal email", icon: Wallet },
+  { id: "cashapp", label: "Cash App", subtitle: "Send to your $Cashtag", icon: DollarSign },
+  { id: "venmo", label: "Venmo", subtitle: "Send to your Venmo username", icon: Smartphone },
+  { id: "zelle", label: "Zelle", subtitle: "Send to email or phone", icon: Mail },
+  { id: "wire", label: "Wire Transfer", subtitle: "International or domestic wire", icon: Globe },
 ];
 
-const FIELD_LABELS: Record<string, string> = {
-  routing: "Routing number",
-  account: "Account number",
-  name: "Full name",
-  email: "PayPal email",
-};
+const US_BANKS = [
+  "Bank of America", "Chase (JPMorgan Chase)", "Wells Fargo", "Citibank",
+  "U.S. Bank", "PNC Bank", "Capital One", "TD Bank", "Truist Financial",
+  "Goldman Sachs", "Morgan Stanley", "Charles Schwab", "HSBC Bank USA",
+  "BMO Harris Bank", "Citizens Financial Group", "Fifth Third Bank",
+  "KeyBank", "Huntington National Bank", "Regions Bank", "M&T Bank",
+  "Ally Bank", "Discover Bank", "Synchrony Bank", "American Express National Bank",
+];
 
 type Step = "method" | "form" | "confirm";
 
@@ -37,6 +40,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
   const [step, setStep] = useState<Step>("method");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [details, setDetails] = useState<Record<string, string>>({});
+  const [confirmField, setConfirmField] = useState("");
 
   const method = WITHDRAWAL_METHODS.find((m) => m.id === selectedMethod);
 
@@ -44,21 +48,27 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
     setDetails((prev) => ({ ...prev, [key]: value }));
 
   const isFormValid = () => {
-    if (selectedMethod === "bank") {
+    if (selectedMethod === "bank" || selectedMethod === "wire") {
       return (
-        (details.name?.trim().length ?? 0) > 2 &&
-        (details.routing?.length ?? 0) === 9 &&
-        (details.account?.length ?? 0) >= 6
+        details.bank && (details.routing?.length ?? 0) >= 9 &&
+        (details.account?.length ?? 0) >= 4 && details.account === confirmField
       );
     }
-    if (selectedMethod === "paypal") {
+    if (selectedMethod === "paypal" || selectedMethod === "zelle") {
       return (details.email?.length ?? 0) > 3;
+    }
+    if (selectedMethod === "cashapp") {
+      return (details.cashtag?.length ?? 0) > 1;
+    }
+    if (selectedMethod === "venmo") {
+      return (details.username?.length ?? 0) > 1;
     }
     return false;
   };
 
   const handleConfirm = () => onSubmit(selectedMethod, details);
 
+  // --- METHOD SELECTION ---
   if (step === "method") {
     return (
       <div className="min-h-screen flex flex-col bg-background">
@@ -74,7 +84,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-5">
-            Choose how you want to receive your funds.
+            Choose how you'd like to receive your funds.
           </p>
 
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -105,6 +115,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
     );
   }
 
+  // --- CONFIRMATION ---
   if (step === "confirm") {
     const entries = Object.entries(details).filter(([, v]) => v);
     return (
@@ -130,7 +141,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
               <div key={key}>
                 <div className="h-px bg-border" />
                 <div className="pt-4">
-                  <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{key.replace(/([A-Z])/g, " $1")}</p>
                   <p className="text-sm font-medium">
                     {key === "account"
                       ? value.slice(0, -4).replace(/./g, "•") + value.slice(-4)
@@ -149,15 +160,18 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
           </div>
 
           <Button onClick={handleConfirm} className="w-full h-14 rounded-full text-base font-semibold mt-8">
-            Confirm and continue
+            Confirm & Continue
           </Button>
           <Button variant="ghost" onClick={() => setStep("form")} className="w-full mt-3 text-sm text-muted-foreground">
-            ← Back and edit
+            ← Go back and edit
           </Button>
         </div>
       </div>
     );
   }
+
+  // --- FORM (per method) ---
+  const isBankType = selectedMethod === "bank" || selectedMethod === "wire";
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -181,49 +195,98 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
         </div>
 
         <div className="space-y-4">
-          {selectedMethod === "bank" && (
+          {isBankType && (
             <>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Full name</label>
-                <Input
-                  type="text"
-                  placeholder="Your full name"
-                  value={details.name || ""}
-                  onChange={(e) => updateDetail("name", e.target.value)}
-                  className="h-12 rounded-xl"
-                />
+                <label className="text-sm font-medium mb-1.5 block">Select your bank</label>
+                <Select value={details.bank || ""} onValueChange={(v) => updateDetail("bank", v)}>
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Choose a bank..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {US_BANKS.map((b) => (
+                      <SelectItem key={b} value={b}>{b}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Routing number</label>
+                <label className="text-sm font-medium mb-1.5 block">Routing Number</label>
                 <Input
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={9}
-                  placeholder="9 digits"
+                  type="text" inputMode="numeric" maxLength={9} placeholder="9 digits"
                   value={details.routing || ""}
                   onChange={(e) => updateDetail("routing", e.target.value.replace(/\D/g, ""))}
                   className="h-12 rounded-xl"
                 />
+                {(details.routing?.length ?? 0) > 0 && (details.routing?.length ?? 0) < 9 && (
+                  <p className="text-xs text-destructive mt-1">Must be 9 digits</p>
+                )}
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Account number</label>
+                <label className="text-sm font-medium mb-1.5 block">Account Number</label>
                 <Input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Account number"
+                  type="text" inputMode="numeric" maxLength={17} placeholder="Enter account number"
                   value={details.account || ""}
                   onChange={(e) => updateDetail("account", e.target.value.replace(/\D/g, ""))}
                   className="h-12 rounded-xl"
                 />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Confirm Account Number</label>
+                <Input
+                  type="text" inputMode="numeric" maxLength={17} placeholder="Re-enter account number"
+                  value={confirmField}
+                  onChange={(e) => setConfirmField(e.target.value.replace(/\D/g, ""))}
+                  className="h-12 rounded-xl"
+                />
+                {confirmField.length > 0 && details.account !== confirmField && (
+                  <p className="text-xs text-destructive mt-1">Account numbers don't match</p>
+                )}
               </div>
             </>
           )}
 
           {selectedMethod === "paypal" && (
             <div>
-              <label className="text-sm font-medium mb-1.5 block">PayPal email</label>
+              <label className="text-sm font-medium mb-1.5 block">PayPal Email</label>
               <Input
                 type="email" placeholder="you@example.com"
+                value={details.email || ""}
+                onChange={(e) => updateDetail("email", e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+          )}
+
+          {selectedMethod === "cashapp" && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">$Cashtag</label>
+              <Input
+                type="text" placeholder="$YourCashtag"
+                value={details.cashtag || ""}
+                onChange={(e) => updateDetail("cashtag", e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+          )}
+
+          {selectedMethod === "venmo" && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Venmo Username</label>
+              <Input
+                type="text" placeholder="@username"
+                value={details.username || ""}
+                onChange={(e) => updateDetail("username", e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+          )}
+
+          {selectedMethod === "zelle" && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Zelle Email or Phone</label>
+              <Input
+                type="text" placeholder="Email or phone number"
                 value={details.email || ""}
                 onChange={(e) => updateDetail("email", e.target.value)}
                 className="h-12 rounded-xl"
@@ -239,7 +302,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
         >
           Continue
         </Button>
-        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); }} className="w-full mt-3 text-sm text-muted-foreground">
+        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); setConfirmField(""); }} className="w-full mt-3 text-sm text-muted-foreground">
           ← Change method
         </Button>
       </div>
