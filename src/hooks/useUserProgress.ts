@@ -9,120 +9,78 @@ export interface UserProgress {
   loginTs: number;
 }
 
+async function callProgress(body: Record<string, unknown>): Promise<UserProgress | null> {
+  const { data, error } = await supabase.functions.invoke("user-progress", { body });
+  if (error) {
+    console.error("user-progress invoke error", error);
+    return null;
+  }
+  return (data?.progress ?? null) as UserProgress | null;
+}
+
+function cacheLocal(p: UserProgress) {
+  localStorage.setItem("wallet_user_email", p.email);
+  localStorage.setItem("wallet_user_name", p.userName);
+  localStorage.setItem("wallet_login_ts", String(p.loginTs));
+  if (p.docsSubmitted) localStorage.setItem("docs_submitted", "true");
+  if (p.bankSubmitted) localStorage.setItem("bank_submitted", "true");
+}
+
 export function useUserProgress() {
   const [progress, setProgress] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Load progress from localStorage email on mount
   useEffect(() => {
     const email = localStorage.getItem("wallet_user_email");
     if (!email) {
       setLoading(false);
       return;
     }
-    loadProgress(email);
+    (async () => {
+      setLoading(true);
+      const p = await callProgress({ action: "get", email });
+      if (p) {
+        setProgress(p);
+        cacheLocal(p);
+      }
+      setLoading(false);
+    })();
   }, []);
 
-  const loadProgress = async (email: string) => {
-    setLoading(true);
-    const { data } = await supabase
-      .from("user_progress")
-      .select("*")
-      .eq("email", email)
-      .maybeSingle();
-
-    if (data) {
-      const p: UserProgress = {
-        email: data.email,
-        userName: data.user_name,
-        docsSubmitted: data.docs_submitted,
-        bankSubmitted: data.bank_submitted,
-        loginTs: Number(data.login_ts),
-      };
-      setProgress(p);
-      localStorage.setItem("wallet_user_email", data.email);
-      localStorage.setItem("wallet_user_name", data.user_name);
-      localStorage.setItem("wallet_login_ts", String(data.login_ts));
-      if (data.docs_submitted) localStorage.setItem("docs_submitted", "true");
-      if (data.bank_submitted) localStorage.setItem("bank_submitted", "true");
-    }
-    setLoading(false);
-  };
-
   const login = useCallback(async (email: string) => {
-    const name = email
-      .split("@")[0]
-      .replace(/[._]/g, " ")
-      .replace(/\b\w/g, (c) => c.toUpperCase());
-    const now = Date.now();
-
-    // Check if user already exists
-    const { data: existing } = await supabase
-      .from("user_progress")
-      .select("*")
-      .eq("email", email)
-      .maybeSingle();
-
-    if (existing) {
-      const p: UserProgress = {
-        email: existing.email,
-        userName: existing.user_name,
-        docsSubmitted: existing.docs_submitted,
-        bankSubmitted: existing.bank_submitted,
-        loginTs: Number(existing.login_ts),
-      };
+    const p = await callProgress({ action: "login", email });
+    if (p) {
       setProgress(p);
-      localStorage.setItem("wallet_user_email", email);
-      localStorage.setItem("wallet_user_name", existing.user_name);
-      localStorage.setItem("wallet_login_ts", String(existing.login_ts));
-      if (existing.docs_submitted) localStorage.setItem("docs_submitted", "true");
-      if (existing.bank_submitted) localStorage.setItem("bank_submitted", "true");
-      return p;
+      cacheLocal(p);
     }
-
-    // Create new user
-    await supabase.from("user_progress").insert({
-      email,
-      user_name: name,
-      login_ts: now,
-      docs_submitted: false,
-    });
-
-    const p: UserProgress = { email, userName: name, docsSubmitted: false, bankSubmitted: false, loginTs: now };
-    setProgress(p);
-    localStorage.setItem("wallet_user_email", email);
-    localStorage.setItem("wallet_user_name", name);
-    localStorage.setItem("wallet_login_ts", String(now));
     return p;
   }, []);
 
   const submitDocs = useCallback(async () => {
     if (!progress) return;
-    await supabase
-      .from("user_progress")
-      .update({ docs_submitted: true })
-      .eq("email", progress.email);
-
-    setProgress((prev) => prev ? { ...prev, docsSubmitted: true } : prev);
-    localStorage.setItem("docs_submitted", "true");
+    const p = await callProgress({ action: "submitDocs", email: progress.email });
+    if (p) {
+      setProgress(p);
+      cacheLocal(p);
+    }
   }, [progress]);
 
-  const submitBank = useCallback(async (method: string, details: Record<string, string>) => {
-    if (!progress) return;
-    await supabase
-      .from("user_progress")
-      .update({
-        bank_submitted: true,
-        withdrawal_method: method,
-        bank_name: details.bank || null,
-        routing_number: details.routing || null,
-        account_number: details.account || null,
-      })
-      .eq("email", progress.email);
-
-    setProgress((prev) => prev ? { ...prev, bankSubmitted: true } : prev);
-    localStorage.setItem("bank_submitted", "true");
-  }, [progress]);
+  const submitBank = useCallback(
+    async (method: string, details: Record<string, string>) => {
+      if (!progress) return;
+      const p = await callProgress({
+        action: "submitBank",
+        email: progress.email,
+        method,
+        details,
+      });
+      if (p) {
+        setProgress(p);
+        cacheLocal(p);
+      }
+    },
+    [progress],
+  );
 
   return { progress, loading, login, submitDocs, submitBank };
 }
