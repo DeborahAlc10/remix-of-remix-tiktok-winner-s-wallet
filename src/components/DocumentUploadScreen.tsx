@@ -16,10 +16,10 @@ interface UploadField {
 }
 
 const fields: UploadField[] = [
-  { label: "Documento de identidad (frente)", description: "Sube el frente de tu INE, pasaporte o licencia de conducir", key: "id_front" },
-  { label: "Documento de identidad (reverso)", description: "Sube el reverso de tu documento de identidad", key: "id_back" },
-  { label: "Comprobante de domicilio", description: "Recibo de servicios o estado de cuenta (últimos 3 meses)", key: "residence" },
-  { label: "Selfie con documento", description: "Tómate una selfie sosteniendo tu documento de identidad", key: "selfie" },
+  { label: "ID document (front)", description: "Upload the front of your passport, ID card, or driver's license", key: "id_front" },
+  { label: "ID document (back)", description: "Upload the back of your ID document", key: "id_back" },
+  { label: "Proof of address", description: "Utility bill or bank statement (last 3 months)", key: "residence" },
+  { label: "Selfie with ID", description: "Take a selfie holding your ID document", key: "selfie" },
 ];
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
@@ -39,30 +39,27 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
 
       <div className="flex-1 px-6 py-6">
         <p className="text-sm text-muted-foreground mb-1">
-          Bienvenido/a de nuevo, <strong className="text-foreground">{userName}!</strong>
+          Welcome back, <strong className="text-foreground">{userName}!</strong>
         </p>
 
-        {/* Step indicator */}
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Verifica tu identidad</h2>
+          <h2 className="text-xl font-semibold">Verify your identity</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Paso 2 de 4
+            Step 2 of 4
           </span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Sube los documentos necesarios para verificar tu cuenta y acceder a tus fondos.
+          Upload the required documents to verify your account and access your funds.
         </p>
 
-        {/* Security notice */}
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
-          <p className="text-xs text-muted-foreground">Tus datos están <strong className="text-foreground">cifrados</strong> y protegidos. Nunca compartimos tus documentos.</p>
+          <p className="text-xs text-muted-foreground">Your data is <strong className="text-foreground">encrypted</strong> and protected. We never share your documents.</p>
         </div>
 
-        {/* Progress bar */}
         <div className="mb-6">
           <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-            <span>{uploadedCount} de {fields.length} subidos</span>
+            <span>{uploadedCount} of {fields.length} uploaded</span>
             <span>{Math.round(progressPercent)}%</span>
           </div>
           <Progress value={progressPercent} className="h-2" />
@@ -95,7 +92,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
                   <p className="text-sm font-semibold">{field.label}</p>
                   <p className="text-xs text-muted-foreground">{field.description}</p>
                   {!files[field.key] && (
-                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">JPG, PNG o PDF · Máx 10MB</p>
+                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">JPG, PNG or PDF · Max 10MB</p>
                   )}
                   {files[field.key] && (
                     <p className="text-xs text-success mt-1 font-medium truncate">
@@ -119,7 +116,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
           disabled={!allUploaded}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Enviar documentos
+          Submit documents
         </Button>
       </div>
     </div>
