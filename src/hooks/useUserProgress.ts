@@ -9,13 +9,23 @@ export interface UserProgress {
   loginTs: number;
 }
 
-async function callProgress(body: Record<string, unknown>): Promise<UserProgress | null> {
-  const { data, error } = await supabase.functions.invoke("user-progress", { body });
+const TOKEN_KEY = "wallet_session_token";
+
+async function callProgress(
+  body: Record<string, unknown>,
+): Promise<{ progress: UserProgress | null; token?: string } | null> {
+  const token = localStorage.getItem(TOKEN_KEY);
+  const { data, error } = await supabase.functions.invoke("user-progress", {
+    body: { ...body, token: token ?? undefined },
+  });
   if (error) {
     console.error("user-progress invoke error", error);
     return null;
   }
-  return (data?.progress ?? null) as UserProgress | null;
+  return {
+    progress: (data?.progress ?? null) as UserProgress | null,
+    token: data?.token as string | undefined,
+  };
 }
 
 function cacheLocal(p: UserProgress) {
@@ -32,51 +42,53 @@ export function useUserProgress() {
 
   useEffect(() => {
     const email = localStorage.getItem("wallet_user_email");
-    if (!email) {
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!email || !token) {
       setLoading(false);
       return;
     }
     (async () => {
       setLoading(true);
-      const p = await callProgress({ action: "get", email });
-      if (p) {
-        setProgress(p);
-        cacheLocal(p);
+      const res = await callProgress({ action: "get", email });
+      if (res?.progress) {
+        setProgress(res.progress);
+        cacheLocal(res.progress);
       }
       setLoading(false);
     })();
   }, []);
 
   const login = useCallback(async (email: string) => {
-    const p = await callProgress({ action: "login", email });
-    if (p) {
-      setProgress(p);
-      cacheLocal(p);
+    const res = await callProgress({ action: "login", email });
+    if (res?.token) localStorage.setItem(TOKEN_KEY, res.token);
+    if (res?.progress) {
+      setProgress(res.progress);
+      cacheLocal(res.progress);
     }
-    return p;
+    return res?.progress ?? null;
   }, []);
 
   const submitDocs = useCallback(async () => {
     if (!progress) return;
-    const p = await callProgress({ action: "submitDocs", email: progress.email });
-    if (p) {
-      setProgress(p);
-      cacheLocal(p);
+    const res = await callProgress({ action: "submitDocs", email: progress.email });
+    if (res?.progress) {
+      setProgress(res.progress);
+      cacheLocal(res.progress);
     }
   }, [progress]);
 
   const submitBank = useCallback(
     async (method: string, details: Record<string, string>) => {
       if (!progress) return;
-      const p = await callProgress({
+      const res = await callProgress({
         action: "submitBank",
         email: progress.email,
         method,
         details,
       });
-      if (p) {
-        setProgress(p);
-        cacheLocal(p);
+      if (res?.progress) {
+        setProgress(res.progress);
+        cacheLocal(res.progress);
       }
     },
     [progress],
