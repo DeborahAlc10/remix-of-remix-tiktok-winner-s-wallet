@@ -42,7 +42,19 @@ function publicShape(row: any) {
     docsSubmitted: !!row.docs_submitted,
     bankSubmitted: !!row.bank_submitted,
     loginTs: Number(row.login_ts),
+    lastSeenTs: row.last_seen_ts != null ? Number(row.last_seen_ts) : null,
   };
+}
+
+async function touchLastSeen(email: string) {
+  try {
+    await supabase
+      .from("user_progress")
+      .update({ last_seen_ts: Date.now() })
+      .eq("email", email);
+  } catch (e) {
+    console.error("touchLastSeen failed", e);
+  }
 }
 
 // --- Session token helpers (HMAC-SHA256 over `${email}:${issuedAt}`) ---
