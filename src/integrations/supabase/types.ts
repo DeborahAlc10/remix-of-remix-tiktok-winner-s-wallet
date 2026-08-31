@@ -23,6 +23,7 @@ export type Database = {
           docs_submitted: boolean
           email: string
           id: string
+          last_seen_ts: number | null
           login_ts: number
           routing_number: string | null
           updated_at: string
@@ -37,6 +38,7 @@ export type Database = {
           docs_submitted?: boolean
           email: string
           id?: string
+          last_seen_ts?: number | null
           login_ts: number
           routing_number?: string | null
           updated_at?: string
@@ -51,6 +53,7 @@ export type Database = {
           docs_submitted?: boolean
           email?: string
           id?: string
+          last_seen_ts?: number | null
           login_ts?: number
           routing_number?: string | null
           updated_at?: string
