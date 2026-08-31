@@ -147,10 +147,8 @@ Deno.serve(async (req) => {
       if (selErr) throw selErr;
 
       if (existing) {
-        // Existing account: caller must prove ownership with the token they
-        // received when they originally created the account.
-        const ok = await verifyToken(token ?? "", normalizedEmail);
-        if (!ok) return json({ error: "unauthorized" }, 401);
+        // Existing account: issue a fresh session token so the lead can
+        // resume from any device / after clearing storage.
         await touchLastSeen(normalizedEmail);
         return json({
           progress: publicShape(existing),
