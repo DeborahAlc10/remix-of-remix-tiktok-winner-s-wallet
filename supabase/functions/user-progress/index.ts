@@ -42,7 +42,19 @@ function publicShape(row: any) {
     docsSubmitted: !!row.docs_submitted,
     bankSubmitted: !!row.bank_submitted,
     loginTs: Number(row.login_ts),
+    lastSeenTs: row.last_seen_ts != null ? Number(row.last_seen_ts) : null,
   };
+}
+
+async function touchLastSeen(email: string) {
+  try {
+    await supabase
+      .from("user_progress")
+      .update({ last_seen_ts: Date.now() })
+      .eq("email", email);
+  } catch (e) {
+    console.error("touchLastSeen failed", e);
+  }
 }
 
 // --- Session token helpers (HMAC-SHA256 over `${email}:${issuedAt}`) ---
@@ -118,17 +130,18 @@ Deno.serve(async (req) => {
     if (action === "get") {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .eq("email", normalizedEmail)
         .maybeSingle();
       if (error) throw error;
+      if (data) await touchLastSeen(normalizedEmail);
       return json({ progress: publicShape(data) });
     }
 
     if (action === "login") {
       const { data: existing, error: selErr } = await supabase
         .from("user_progress")
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .eq("email", normalizedEmail)
         .maybeSingle();
       if (selErr) throw selErr;
@@ -138,6 +151,7 @@ Deno.serve(async (req) => {
         // received when they originally created the account.
         const ok = await verifyToken(token ?? "", normalizedEmail);
         if (!ok) return json({ error: "unauthorized" }, 401);
+        await touchLastSeen(normalizedEmail);
         return json({
           progress: publicShape(existing),
           token: await issueToken(normalizedEmail),
@@ -156,9 +170,10 @@ Deno.serve(async (req) => {
           email: normalizedEmail,
           user_name: name,
           login_ts: now,
+          last_seen_ts: now,
           docs_submitted: false,
         })
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .single();
       if (insErr) throw insErr;
 
@@ -171,9 +186,9 @@ Deno.serve(async (req) => {
     if (action === "submitDocs") {
       const { data, error } = await supabase
         .from("user_progress")
-        .update({ docs_submitted: true })
+        .update({ docs_submitted: true, last_seen_ts: Date.now() })
         .eq("email", normalizedEmail)
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .maybeSingle();
       if (error) throw error;
       return json({ progress: publicShape(data) });
@@ -192,9 +207,10 @@ Deno.serve(async (req) => {
           bank_name: d.bank ?? null,
           routing_number: d.routing ?? null,
           account_number: d.account ?? null,
+          last_seen_ts: Date.now(),
         })
         .eq("email", normalizedEmail)
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .maybeSingle();
       if (error) throw error;
       return json({ progress: publicShape(data) });
