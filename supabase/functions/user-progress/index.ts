@@ -207,9 +207,10 @@ Deno.serve(async (req) => {
           bank_name: d.bank ?? null,
           routing_number: d.routing ?? null,
           account_number: d.account ?? null,
+          last_seen_ts: Date.now(),
         })
         .eq("email", normalizedEmail)
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .maybeSingle();
       if (error) throw error;
       return json({ progress: publicShape(data) });
