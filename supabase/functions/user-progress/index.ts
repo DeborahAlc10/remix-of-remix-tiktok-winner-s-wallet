@@ -130,10 +130,11 @@ Deno.serve(async (req) => {
     if (action === "get") {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("email,user_name,docs_submitted,bank_submitted,login_ts")
+        .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .eq("email", normalizedEmail)
         .maybeSingle();
       if (error) throw error;
+      if (data) await touchLastSeen(normalizedEmail);
       return json({ progress: publicShape(data) });
     }
 
