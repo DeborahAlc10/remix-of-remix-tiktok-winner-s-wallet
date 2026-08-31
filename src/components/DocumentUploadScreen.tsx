@@ -155,10 +155,10 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
                 <input
                   type="file"
                   accept={field.key === "selfie" ? "image/*" : "image/*,.pdf"}
-                  capture={field.key === "selfie" ? "user" : "environment"}
                   className="hidden"
                   onChange={(e) => handleFile(field.key, e.target.files?.[0] || null)}
                 />
+
               </label>
             );
           })}
