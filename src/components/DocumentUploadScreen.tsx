@@ -4,7 +4,7 @@ import { Upload, CheckCircle, ShieldCheck, Camera, Clock } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import TikTokHeader from "./TikTokHeader";
 
-const URGENCY_WINDOW_MS = 15 * 60 * 1000; // 15 minutes
+const URGENCY_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function useCountdown(deadline: number) {
   const [remaining, setRemaining] = useState(() => Math.max(0, deadline - Date.now()));
@@ -12,9 +12,11 @@ function useCountdown(deadline: number) {
     const i = setInterval(() => setRemaining(Math.max(0, deadline - Date.now())), 1000);
     return () => clearInterval(i);
   }, [deadline]);
-  const mm = Math.floor(remaining / 60000);
+  const hh = Math.floor(remaining / 3600000);
+  const mm = Math.floor((remaining % 3600000) / 60000);
   const ss = Math.floor((remaining % 60000) / 1000);
-  return { remaining, label: `${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}` };
+  const label = `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}:${String(ss).padStart(2, "0")}`;
+  return { remaining, label };
 }
 
 interface DocumentUploadScreenProps {
