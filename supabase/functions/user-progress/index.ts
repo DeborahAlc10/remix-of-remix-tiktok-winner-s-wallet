@@ -147,10 +147,10 @@ Deno.serve(async (req) => {
       if (selErr) throw selErr;
 
       if (existing) {
-        // Existing account: caller must prove ownership with the token they
-        // received when they originally created the account.
-        const ok = await verifyToken(token ?? "", normalizedEmail);
-        if (!ok) return json({ error: "unauthorized" }, 401);
+        // Existing account: allow re-login by email so users returning from
+        // another device/browser can resume. We only ever return the public
+        // shape (status + name + timestamps); bank details are never sent
+        // back to the client from any action.
         await touchLastSeen(normalizedEmail);
         return json({
           progress: publicShape(existing),
