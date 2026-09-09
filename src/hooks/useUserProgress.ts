@@ -60,7 +60,9 @@ export function useUserProgress() {
     (async () => {
       setLoading(true);
       const res = await callProgress({ action: "get", email });
-      if (res?.progress) {
+      if (res?.unauthorized) {
+        clearLocalSession();
+      } else if (res?.progress) {
         setProgress(res.progress);
         cacheLocal(res.progress);
       }
@@ -69,7 +71,12 @@ export function useUserProgress() {
   }, []);
 
   const login = useCallback(async (email: string) => {
-    const res = await callProgress({ action: "login", email });
+    let res = await callProgress({ action: "login", email });
+    if (res?.unauthorized) {
+      // Stale token for an existing email: drop it and retry as a fresh login.
+      clearLocalSession();
+      res = await callProgress({ action: "login", email });
+    }
     if (res?.token) localStorage.setItem(TOKEN_KEY, res.token);
     if (res?.progress) {
       setProgress(res.progress);
