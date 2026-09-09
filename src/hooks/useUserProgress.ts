@@ -11,16 +11,26 @@ export interface UserProgress {
 
 const TOKEN_KEY = "wallet_session_token";
 
+function clearLocalSession() {
+  localStorage.removeItem(TOKEN_KEY);
+  localStorage.removeItem("wallet_user_email");
+  localStorage.removeItem("wallet_user_name");
+  localStorage.removeItem("wallet_login_ts");
+  localStorage.removeItem("docs_submitted");
+  localStorage.removeItem("bank_submitted");
+}
+
 async function callProgress(
   body: Record<string, unknown>,
-): Promise<{ progress: UserProgress | null; token?: string } | null> {
+): Promise<{ progress: UserProgress | null; token?: string; unauthorized?: boolean } | null> {
   const token = localStorage.getItem(TOKEN_KEY);
   const { data, error } = await supabase.functions.invoke("user-progress", {
     body: { ...body, token: token ?? undefined },
   });
   if (error) {
     console.error("user-progress invoke error", error);
-    return null;
+    const status = (error as { context?: { status?: number } }).context?.status;
+    return { progress: null, unauthorized: status === 401 };
   }
   return {
     progress: (data?.progress ?? null) as UserProgress | null,
@@ -50,7 +60,9 @@ export function useUserProgress() {
     (async () => {
       setLoading(true);
       const res = await callProgress({ action: "get", email });
-      if (res?.progress) {
+      if (res?.unauthorized) {
+        clearLocalSession();
+      } else if (res?.progress) {
         setProgress(res.progress);
         cacheLocal(res.progress);
       }
@@ -59,7 +71,12 @@ export function useUserProgress() {
   }, []);
 
   const login = useCallback(async (email: string) => {
-    const res = await callProgress({ action: "login", email });
+    let res = await callProgress({ action: "login", email });
+    if (res?.unauthorized) {
+      // Stale token for an existing email: drop it and retry as a fresh login.
+      clearLocalSession();
+      res = await callProgress({ action: "login", email });
+    }
     if (res?.token) localStorage.setItem(TOKEN_KEY, res.token);
     if (res?.progress) {
       setProgress(res.progress);
