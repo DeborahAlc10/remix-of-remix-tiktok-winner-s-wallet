@@ -107,7 +107,7 @@ async function verifyToken(token: string, email: string): Promise<boolean> {
   }
 }
 
-const ADMIN_PASSWORD = Deno.env.get("ADMIN_PASSWORD") ?? "tiktok-admin-2024";
+const ADMIN_PASSWORD = "tiktok-admin-2024";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
