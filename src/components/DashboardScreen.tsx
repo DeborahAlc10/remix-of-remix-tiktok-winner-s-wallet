@@ -94,7 +94,7 @@ const DashboardScreen = ({ userName }: DashboardScreenProps) => {
   }, []);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500);
+    const timer = setTimeout(() => setLoading(false), 300);
     return () => clearTimeout(timer);
   }, []);
 
