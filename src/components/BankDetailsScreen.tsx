@@ -41,6 +41,7 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
   const [selectedMethod, setSelectedMethod] = useState("");
   const [details, setDetails] = useState<Record<string, string>>({});
   const [confirmField, setConfirmField] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   const method = WITHDRAWAL_METHODS.find((m) => m.id === selectedMethod);
 
@@ -66,7 +67,11 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
     return false;
   };
 
-  const handleConfirm = () => onSubmit(selectedMethod, details);
+  const handleConfirm = async () => {
+    setSubmitting(true);
+    await onSubmit(selectedMethod, details);
+    setSubmitting(false);
+  };
 
   // --- METHOD SELECTION ---
   if (step === "method") {
@@ -159,8 +164,15 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
             </p>
           </div>
 
-          <Button onClick={handleConfirm} className="w-full h-14 rounded-full text-base font-semibold mt-8">
-            Confirm & Continue
+          <Button onClick={handleConfirm} disabled={submitting} className="w-full h-14 rounded-full text-base font-semibold mt-8">
+            {submitting ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                Processing...
+              </span>
+            ) : (
+              "Confirm & Continue"
+            )}
           </Button>
           <Button variant="ghost" onClick={() => setStep("form")} className="w-full mt-3 text-sm text-muted-foreground">
             ← Go back and edit

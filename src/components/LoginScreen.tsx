@@ -10,10 +10,15 @@ interface LoginScreenProps {
 
 const LoginScreen = ({ onLogin }: LoginScreenProps) => {
   const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (email.trim()) onLogin(email.trim());
+    if (email.trim()) {
+      setSubmitting(true);
+      await onLogin(email.trim());
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -53,8 +58,16 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
           <Button
             type="submit"
             className="w-full h-14 rounded-full text-base font-semibold"
+            disabled={!email.trim() || submitting}
           >
-            Log in
+            {submitting ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                Signing in...
+              </span>
+            ) : (
+              "Log in"
+            )}
           </Button>
 
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">

@@ -24,6 +24,7 @@ const fields: UploadField[] = [
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
   const [files, setFiles] = useState<Record<string, File | null>>({});
+  const [submitting, setSubmitting] = useState(false);
 
   const handleFile = (key: string, file: File | null) => {
     setFiles((prev) => ({ ...prev, [key]: file }));
@@ -32,6 +33,12 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
   const uploadedCount = fields.filter((f) => files[f.key]).length;
   const allUploaded = uploadedCount === fields.length;
   const progressPercent = (uploadedCount / fields.length) * 100;
+
+  const handleSubmit = async () => {
+    setSubmitting(true);
+    await onSubmit();
+    setSubmitting(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -115,11 +122,18 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
         </div>
 
         <Button
-          onClick={onSubmit}
-          disabled={!allUploaded}
+          onClick={handleSubmit}
+          disabled={!allUploaded || submitting}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Submit Documents
+          {submitting ? (
+            <span className="flex items-center gap-2">
+              <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+              Submitting...
+            </span>
+          ) : (
+            "Submit Documents"
+          )}
         </Button>
       </div>
     </div>
