@@ -11,13 +11,12 @@
 // - `get`, `submitDocs`, `submitBank` all require a valid session token bound
 //   to the email in the request.
 
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2.57.4";
+import { createClient } from "npm:@supabase/supabase-js@2.57.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
 const supabase = createClient(
@@ -25,7 +24,8 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const SESSION_SECRET = Deno.env.get("USER_PROGRESS_SESSION_SECRET")!;
+const SESSION_SECRET = Deno.env.get("USER_PROGRESS_SESSION_SECRET")
+  ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
