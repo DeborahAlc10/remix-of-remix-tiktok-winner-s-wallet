@@ -24,7 +24,8 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
 );
 
-const SESSION_SECRET = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const SESSION_SECRET = Deno.env.get("USER_PROGRESS_SESSION_SECRET")
+  ?? Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 
 function json(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
