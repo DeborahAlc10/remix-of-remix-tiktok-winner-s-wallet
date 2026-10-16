@@ -9,6 +9,7 @@ import {
   Lock,
   ChevronUp,
   ChevronDown,
+  Download,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -85,6 +86,19 @@ const AdminPanel = () => {
   };
 
   const handleRefresh = () => fetchUsers(password);
+
+  const handleExportEmails = () => {
+    const emails = sorted.map((u) => u.email).join("\n");
+    const blob = new Blob([emails], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "emails-export.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -171,10 +185,16 @@ const AdminPanel = () => {
             <Shield className="w-5 h-5" />
             <span className="font-bold tracking-tight">Admin Panel</span>
           </div>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
-            <RefreshCw className={`w-4 h-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-            Refresh
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleExportEmails} disabled={users.length === 0}>
+              <Download className="w-4 h-4 mr-1.5" />
+              Export Emails
+            </Button>
+            <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
+              Refresh
+            </Button>
+          </div>
         </div>
       </header>
 
