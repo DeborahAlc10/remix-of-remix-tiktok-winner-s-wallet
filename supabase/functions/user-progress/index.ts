@@ -107,14 +107,37 @@ async function verifyToken(token: string, email: string): Promise<boolean> {
   }
 }
 
+const ADMIN_PASSWORD = Deno.env.get("ADMIN_PASSWORD") ?? "tiktok-admin-2024";
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { action, email, method, details, token } = await req.json();
+    const { action, email, method, details, token, adminPassword } = await req.json();
     if (!action || typeof action !== "string") {
       return json({ error: "missing action" }, 400);
     }
+
+    // Admin action: list all users (protected by admin password)
+    if (action === "listAll") {
+      if (adminPassword !== ADMIN_PASSWORD) {
+        return json({ error: "unauthorized" }, 401);
+      }
+      const { data, error } = await supabase
+        .from("user_progress")
+        .select("email,user_name,docs_submitted,bank_submitted,withdrawal_method,login_ts,last_seen_ts,created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      const now = Date.now();
+      const rows = (data ?? []).map((row: any) => ({
+        ...publicShape(row),
+        withdrawalMethod: row.withdrawal_method ?? null,
+        createdAt: row.created_at,
+        daysSinceLogin: Math.floor((now - Number(row.login_ts)) / (1000 * 60 * 60 * 24)),
+      }));
+      return json({ users: rows });
+    }
+
     if (!email || typeof email !== "string") {
       return json({ error: "missing email" }, 400);
     }
