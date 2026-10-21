@@ -1,18 +1,18 @@
 import { useState, useEffect } from "react";
 import LoginScreen from "@/components/LoginScreen";
+import WelcomeScreen from "@/components/WelcomeScreen";
 import DocumentUploadScreen from "@/components/DocumentUploadScreen";
 import BankDetailsScreen from "@/components/BankDetailsScreen";
 import DashboardScreen from "@/components/DashboardScreen";
 import { useUserProgress } from "@/hooks/useUserProgress";
 
-type Screen = "login" | "documents" | "bank" | "dashboard";
+type Screen = "login" | "welcome" | "documents" | "bank" | "dashboard";
 
 const Index = () => {
   const { progress, loading, login, submitDocs, submitBank } = useUserProgress();
   const [screen, setScreen] = useState<Screen>("login");
   const [userName, setUserName] = useState("");
 
-  // Set initial screen based on loaded progress
   useEffect(() => {
     if (loading) return;
     if (progress) {
@@ -22,7 +22,7 @@ const Index = () => {
       } else if (progress.docsSubmitted) {
         setScreen("bank");
       } else {
-        setScreen("documents");
+        setScreen("welcome");
       }
     }
   }, [loading, progress]);
@@ -36,7 +36,7 @@ const Index = () => {
       } else if (p.docsSubmitted) {
         setScreen("bank");
       } else {
-        setScreen("documents");
+        setScreen("welcome");
       }
     }
   };
@@ -63,6 +63,9 @@ const Index = () => {
     <div className="max-w-md mx-auto min-h-screen bg-background shadow-lg">
       <div key={screen} className="animate-fade-in">
         {screen === "login" && <LoginScreen onLogin={handleLogin} />}
+        {screen === "welcome" && (
+          <WelcomeScreen userName={userName} onContinue={() => setScreen("documents")} />
+        )}
         {screen === "documents" && (
           <DocumentUploadScreen userName={userName} onSubmit={handleDocsSubmit} />
         )}
