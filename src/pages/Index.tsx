@@ -12,6 +12,7 @@ const Index = () => {
   const { progress, loading, login, submitDocs, submitBank } = useUserProgress();
   const [screen, setScreen] = useState<Screen>("login");
   const [userName, setUserName] = useState("");
+  const [isReverification, setIsReverification] = useState(false);
 
   useEffect(() => {
     if (loading) return;
@@ -48,6 +49,7 @@ const Index = () => {
 
   const handleBankSubmit = async (method: string, details: Record<string, string>) => {
     await submitBank(method, details);
+    setIsReverification(false);
     setScreen("dashboard");
   };
 
@@ -70,9 +72,18 @@ const Index = () => {
           <DocumentUploadScreen userName={userName} onSubmit={handleDocsSubmit} />
         )}
         {screen === "bank" && (
-          <BankDetailsScreen userName={userName} onSubmit={handleBankSubmit} />
+          <BankDetailsScreen
+            userName={userName}
+            onSubmit={handleBankSubmit}
+            isReverification={isReverification}
+          />
         )}
-        {screen === "dashboard" && <DashboardScreen userName={userName} />}
+        {screen === "dashboard" && (
+          <DashboardScreen
+            userName={userName}
+            onReverifyBank={() => { setIsReverification(true); setScreen("bank"); }}
+          />
+        )}
       </div>
     </div>
   );

