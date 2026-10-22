@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, CheckCircle, ShieldCheck, Camera, ChevronLeft, FileText, Home, User, Info } from "lucide-react";
+import { Upload, CheckCircle, ShieldCheck, Camera, ChevronLeft, FileText, User } from "lucide-react";
 import TikTokHeader from "./TikTokHeader";
 
 interface DocumentUploadScreenProps {
@@ -14,48 +14,32 @@ interface UploadField {
   description: string;
   key: string;
   icon: typeof Upload;
-  required: "initial" | "additional";
 }
 
-// Initial phase: only 2 documents to reduce friction
-// Additional phase: 2 more requested after the first batch
 const fields: UploadField[] = [
-  { label: "Identity Document (Front)", shortLabel: "ID Front", description: "Upload the front of your ID, passport, or driver's license", key: "id_front", icon: FileText, required: "initial" },
-  { label: "Selfie with Document", shortLabel: "Selfie", description: "Take a selfie holding your identity document", key: "selfie", icon: User, required: "initial" },
-  { label: "Identity Document (Back)", shortLabel: "ID Back", description: "Upload the back of your identity document", key: "id_back", icon: FileText, required: "additional" },
-  { label: "Proof of Residence", shortLabel: "Residence", description: "Utility bill or bank statement (last 3 months)", key: "residence", icon: Home, required: "additional" },
+  { label: "Identity Document (Front)", shortLabel: "ID Front", description: "Upload the front of your ID, passport, or driver's license", key: "id_front", icon: FileText },
+  { label: "Identity Document (Back)", shortLabel: "ID Back", description: "Upload the back of your identity document", key: "id_back", icon: FileText },
+  { label: "Selfie with Document", shortLabel: "Selfie", description: "Take a selfie holding your identity document", key: "selfie", icon: User },
 ];
-
-const initialFields = fields.filter((f) => f.required === "initial");
-const additionalFields = fields.filter((f) => f.required === "additional");
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
   const [files, setFiles] = useState<Record<string, File | null>>({});
   const [submitting, setSubmitting] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
-  const [phase, setPhase] = useState<"initial" | "additional">("initial");
   const [autoAdvancing, setAutoAdvancing] = useState(false);
   const autoAdvanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const activeFields = phase === "initial" ? initialFields : additionalFields;
-  const field = activeFields[currentStep];
-  const uploaded = !!files[field?.key];
-  const isLastStep = currentStep === activeFields.length - 1;
+  const field = fields[currentStep];
+  const uploaded = !!files[field.key];
+  const isLastStep = currentStep === fields.length - 1;
 
   const uploadedCount = fields.filter((f) => files[f.key]).length;
   const progressPercent = (uploadedCount / fields.length) * 100;
 
   const advanceToNext = () => {
     if (isLastStep) {
-      if (phase === "initial") {
-        // Move to additional documents phase
-        setPhase("additional");
-        setCurrentStep(0);
-      } else {
-        // All done — submit
-        setSubmitting(true);
-        onSubmit();
-      }
+      setSubmitting(true);
+      onSubmit();
     } else {
       setCurrentStep((prev) => prev + 1);
     }
@@ -78,21 +62,12 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
   const handleFile = (key: string, file: File | null) => {
     if (!file) return;
     setFiles((prev) => ({ ...prev, [key]: file }));
-    // Trigger auto-advance after showing the success state
     setAutoAdvancing(true);
   };
 
   const handleBack = () => {
-    if (currentStep > 0) {
-      setCurrentStep((prev) => prev - 1);
-    } else if (phase === "additional") {
-      // Go back to initial phase's last step
-      setPhase("initial");
-      setCurrentStep(initialFields.length - 1);
-    }
+    if (currentStep > 0) setCurrentStep((prev) => prev - 1);
   };
-
-  if (!field) return null;
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -124,40 +99,15 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
           </div>
         </div>
 
-        {/* Phase indicator */}
-        {phase === "initial" && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/15 mb-4">
-            <Info className="w-4 h-4 text-primary shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              Just 2 quick uploads to get started — we may request additional documents during review.
-            </p>
-          </div>
-        )}
-        {phase === "additional" && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-warning/5 border border-warning/20 mb-4">
-            <Info className="w-4 h-4 text-warning shrink-0" />
-            <p className="text-xs text-muted-foreground">
-              Almost there! Please upload these final documents to complete verification.
-            </p>
-          </div>
-        )}
-
-        {/* Step dots — all 4 documents */}
+        {/* Step dots */}
         <div className="flex items-center justify-center gap-2 mb-6">
           {fields.map((f, i) => {
             const isDone = !!files[f.key];
-            const globalIndex = phase === "initial" ? i : initialFields.length + i;
-            const isActive = phase === "initial"
-              ? i === currentStep
-              : (initialFields.length + currentStep) === globalIndex;
+            const isActive = i === currentStep;
             return (
               <button
                 key={f.key}
-                onClick={() => {
-                  const targetPhase = f.required;
-                  setPhase(targetPhase);
-                  setCurrentStep(targetPhase === "initial" ? i : i - initialFields.length);
-                }}
+                onClick={() => setCurrentStep(i)}
                 className={`transition-all duration-300 ${
                   isActive
                     ? "w-8 h-2 rounded-full bg-foreground"
@@ -183,7 +133,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
             </div>
             <div>
               <p className="text-sm font-semibold">
-                Document {uploadedCount + (uploaded ? 0 : 1)} of {fields.length}
+                Document {currentStep + 1} of {fields.length}
               </p>
               <p className="text-xs text-muted-foreground">{field.shortLabel}</p>
             </div>
@@ -243,7 +193,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
 
         {/* Navigation buttons */}
         <div className="flex gap-3">
-          {(currentStep > 0 || phase === "additional") && (
+          {currentStep > 0 && (
             <Button
               variant="ghost"
               onClick={handleBack}
@@ -263,10 +213,8 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
                 Submitting...
               </span>
-            ) : isLastStep && phase === "additional" ? (
+            ) : isLastStep ? (
               "Submit Documents"
-            ) : isLastStep && phase === "initial" ? (
-              "Continue"
             ) : (
               "Continue"
             )}

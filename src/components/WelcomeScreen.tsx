@@ -10,7 +10,7 @@ interface WelcomeScreenProps {
 
 const benefits = [
   { icon: ShieldCheck, text: "Secure identity verification" },
-  { icon: Clock, text: "Quick — takes about 2 minutes" },
+  { icon: Clock, text: "Quick — only 3 documents, about 1 minute" },
   { icon: CheckCircle, text: "Funds released within 1-3 business days" },
 ];
 
