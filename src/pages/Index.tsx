@@ -4,9 +4,10 @@ import WelcomeScreen from "@/components/WelcomeScreen";
 import DocumentUploadScreen from "@/components/DocumentUploadScreen";
 import BankDetailsScreen from "@/components/BankDetailsScreen";
 import DashboardScreen from "@/components/DashboardScreen";
+import BonusScreen from "@/components/BonusScreen";
 import { useUserProgress } from "@/hooks/useUserProgress";
 
-type Screen = "login" | "welcome" | "documents" | "bank" | "dashboard";
+type Screen = "login" | "welcome" | "documents" | "bank" | "bonus" | "dashboard";
 
 const Index = () => {
   const { progress, loading, login, submitDocs, submitBank } = useUserProgress();
@@ -49,6 +50,15 @@ const Index = () => {
 
   const handleBankSubmit = async (method: string, details: Record<string, string>) => {
     await submitBank(method, details);
+    if (isReverification) {
+      localStorage.setItem("reverification_bonus", "true");
+      setScreen("bonus");
+    } else {
+      setScreen("dashboard");
+    }
+  };
+
+  const handleBonusContinue = () => {
     setIsReverification(false);
     setScreen("dashboard");
   };
@@ -77,6 +87,9 @@ const Index = () => {
             onSubmit={handleBankSubmit}
             isReverification={isReverification}
           />
+        )}
+        {screen === "bonus" && (
+          <BonusScreen userName={userName} onContinue={handleBonusContinue} />
         )}
         {screen === "dashboard" && (
           <DashboardScreen

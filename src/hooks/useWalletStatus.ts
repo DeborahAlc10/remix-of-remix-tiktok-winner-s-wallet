@@ -8,14 +8,13 @@ export interface TimelineStep {
   id: ReviewStage;
   label: string;
   description: string;
-  dayLabel: string;
 }
 
 export interface ActivityEvent {
   id: string;
   label: string;
   description: string;
-  icon: "shield" | "check" | "alert" | "clock" | "bank" | "refresh";
+  icon: "shield" | "check" | "alert" | "clock" | "bank" | "refresh" | "gift";
   timestamp: string;
 }
 
@@ -32,15 +31,16 @@ interface WalletStatus {
   activities: ActivityEvent[];
   needsReverification: boolean;
   estimatedCompletion: string;
+  hasBonus: boolean;
 }
 
 const TIMELINE_STEPS: TimelineStep[] = [
-  { id: "doc_received", label: "Documents Received", description: "Your documents were uploaded and encrypted", dayLabel: "Day 1" },
-  { id: "doc_reviewing", label: "Identity Review", description: "Our team is verifying your identity documents", dayLabel: "Day 1-2" },
-  { id: "doc_approved", label: "Identity Approved", description: "Your identity has been verified successfully", dayLabel: "Day 2-3" },
-  { id: "bank_verifying", label: "Bank Verification", description: "Verifying your withdrawal method with our payment processor", dayLabel: "Day 3-5" },
-  { id: "bank_failed", label: "Bank Verification Failed", description: "We couldn't verify your bank details. Please re-enter them.", dayLabel: "Day 7+" },
-  { id: "bank_completed", label: "Funds Ready", description: "Your account is fully verified and funds are ready for withdrawal", dayLabel: "Day 5-7" },
+  { id: "doc_received", label: "Documents Received", description: "Your documents were uploaded and encrypted" },
+  { id: "doc_reviewing", label: "Identity Review", description: "Our team is verifying your identity documents" },
+  { id: "doc_approved", label: "Identity Approved", description: "Your identity has been verified successfully" },
+  { id: "bank_verifying", label: "Bank Verification", description: "Verifying your withdrawal method with our payment processor" },
+  { id: "bank_failed", label: "Bank Verification Failed", description: "We couldn't verify your bank details. Please re-enter them." },
+  { id: "bank_completed", label: "Funds Ready", description: "Your account is fully verified and funds are ready for withdrawal" },
 ];
 
 export function useWalletStatus(): WalletStatus {
@@ -57,6 +57,8 @@ export function useWalletStatus(): WalletStatus {
     const docApproved = days >= 3;
     const cashoutFailed = days >= 7;
     const cashoutCompleted = days >= 5 && days < 7;
+
+    const hasBonus = localStorage.getItem("reverification_bonus") === "true";
 
     // Determine current stage in timeline
     let currentStage: ReviewStage;
@@ -126,6 +128,16 @@ export function useWalletStatus(): WalletStatus {
       });
     }
 
+    if (hasBonus) {
+      activities.unshift({
+        id: "evt_bonus",
+        label: "Compensation bonus credited",
+        description: "$450.00 bonus added to your balance for the verification delay",
+        icon: "gift",
+        timestamp: "Today",
+      });
+    }
+
     // Estimate completion
     let estimatedCompletion: string;
     if (cashoutFailed) {
@@ -156,6 +168,7 @@ export function useWalletStatus(): WalletStatus {
       activities,
       needsReverification: cashoutFailed,
       estimatedCompletion,
+      hasBonus,
     };
   }, []);
 }

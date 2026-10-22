@@ -3,17 +3,16 @@ import {
   ArrowUpRight,
   CheckCircle,
   AlertTriangle,
-  FileText,
   XCircle,
   Wallet,
   Building,
-  CreditCard,
   ChevronRight,
   DollarSign,
   ShieldCheck,
   Clock,
   RefreshCw,
   Loader2,
+  Gift,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -74,7 +73,7 @@ const TimelineStepRow = ({
   status,
   isLast,
 }: {
-  step: { label: string; description: string; dayLabel: string };
+  step: { label: string; description: string };
   status: "complete" | "current" | "pending";
   isLast: boolean;
 }) => {
@@ -102,22 +101,11 @@ const TimelineStepRow = ({
         {!isLast && <div className={`w-0.5 flex-1 my-1 rounded-full ${lineClass} min-h-[24px]`} />}
       </div>
       <div className={`flex-1 pb-5 ${isLast ? "pb-0" : ""}`}>
-        <div className="flex items-center justify-between gap-2">
-          <p className={`text-sm font-semibold ${
-            status === "pending" ? "text-muted-foreground" : "text-foreground"
-          }`}>
-            {step.label}
-          </p>
-          <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap ${
-            status === "complete"
-              ? "bg-success/10 text-success"
-              : status === "current"
-              ? "bg-warning/10 text-warning"
-              : "bg-muted text-muted-foreground"
-          }`}>
-            {step.dayLabel}
-          </span>
-        </div>
+        <p className={`text-sm font-semibold ${
+          status === "pending" ? "text-muted-foreground" : "text-foreground"
+        }`}>
+          {step.label}
+        </p>
         <p className={`text-xs mt-0.5 ${
           status === "pending" ? "text-muted-foreground/60" : "text-muted-foreground"
         }`}>
@@ -158,6 +146,7 @@ const activityIcons: Record<ActivityEvent["icon"], typeof ShieldCheck> = {
   clock: Clock,
   bank: Building,
   refresh: RefreshCw,
+  gift: Gift,
 };
 
 const ActivityRow = ({ event }: { event: ActivityEvent }) => {
@@ -165,6 +154,7 @@ const ActivityRow = ({ event }: { event: ActivityEvent }) => {
   const iconColor =
     event.icon === "alert" ? "text-destructive bg-destructive/10"
     : event.icon === "check" ? "text-success bg-success/10"
+    : event.icon === "gift" ? "text-success bg-success/10"
     : event.icon === "shield" ? "text-primary bg-primary/10"
     : event.icon === "bank" ? "text-primary bg-primary/10"
     : "text-muted-foreground bg-secondary";
@@ -227,7 +217,15 @@ const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => 
           <DollarSign className="absolute top-4 right-4 w-16 h-16 opacity-[0.06]" strokeWidth={1.5} />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
           <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Available Balance</p>
-          <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">$2,893.27</p>
+          <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">
+            ${(status.hasBonus ? 3343.27 : 2893.27).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+          </p>
+          {status.hasBonus && (
+            <p className="text-[10px] text-emerald-300 mt-2 relative z-10 flex items-center gap-1">
+              <Gift className="w-3 h-3" />
+              Includes $450.00 compensation bonus
+            </p>
+          )}
           <div className="flex items-center gap-2 mt-3 relative z-10">
             <span className={`text-[10px] px-2.5 py-1 rounded-full font-semibold ${
               failed
@@ -273,9 +271,9 @@ const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => 
         <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">Verification Progress</p>
-            <span className="text-[10px] text-muted-foreground">
-              Day {status.daysSinceLogin + 1}
-            </span>
+            {!failed && !canWithdraw && (
+              <span className="text-[10px] text-muted-foreground">{status.estimatedCompletion}</span>
+            )}
           </div>
           {visibleTimeline.map((step, i) => {
             const s = stageStatus(step.id as ReviewStage, status.currentStage, failed);
@@ -363,7 +361,9 @@ const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => 
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
-              <span className="text-sm font-bold text-destructive whitespace-nowrap">-$2,893.27</span>
+              <span className="text-sm font-bold text-destructive whitespace-nowrap">
+                -${(status.hasBonus ? 3343.27 : 2893.27).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
 
@@ -380,9 +380,30 @@ const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => 
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
-              <span className="text-sm font-bold text-success whitespace-nowrap">+$2,893.27</span>
+              <span className="text-sm font-bold text-success whitespace-nowrap">
+                +${(status.hasBonus ? 3343.27 : 2893.27).toLocaleString("en-US", { minimumFractionDigits: 2 })}
+              </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
+
+            {status.hasBonus && (
+              <div className="flex items-center gap-3.5 px-4 py-4 border-t border-border/40 hover:bg-accent/40 transition-colors cursor-pointer group">
+                <div className="flex items-center justify-center w-11 h-11 rounded-full bg-success/10 shrink-0">
+                  <Gift className="w-5 h-5 text-success" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <p className="text-sm font-semibold">Compensation Bonus</p>
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-semibold border bg-success/10 text-success border-success/20">
+                      Credited
+                    </Badge>
+                  </div>
+                  <p className="text-xs text-muted-foreground">Verification delay compensation</p>
+                </div>
+                <span className="text-sm font-bold text-success whitespace-nowrap">+$450.00</span>
+                <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+            )}
           </div>
         </div>
       </div>
