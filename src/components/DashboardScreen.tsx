@@ -188,13 +188,12 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
     const ts = localStorage.getItem("wallet_login_ts");
     if (ts) {
       const days = Math.floor((Date.now() - Number(ts)) / (1000 * 60 * 60 * 24));
+      if (days === 0) return "Today";
       const d = new Date(Number(ts));
-      if (days > 0) {
-        d.setDate(d.getDate() + days);
-      }
+      d.setDate(d.getDate() + days);
       return format(d, "MMM dd, yyyy");
     }
-    return format(new Date(), "MMM dd, yyyy");
+    return "Today";
   }, [refreshKey]);
 
   useEffect(() => {
@@ -322,6 +321,11 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
           {failed && (
             <p className="text-xs text-destructive text-center mt-2">
               Resolve bank verification to unlock withdrawal
+            </p>
+          )}
+          {!canWithdraw && !failed && !status.needsReverification && (
+            <p className="text-[11px] text-muted-foreground/70 text-center mt-1.5">
+              Complete identity & bank verification first to unlock withdrawal
             </p>
           )}
         </div>
