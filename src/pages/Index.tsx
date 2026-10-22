@@ -50,17 +50,18 @@ const Index = () => {
 
   const handleBankSubmit = async (method: string, details: Record<string, string>) => {
     await submitBank(method, details);
-    if (isReverification) {
-      localStorage.setItem("reverification_bonus", "true");
-      setScreen("bonus");
-    } else {
-      setScreen("dashboard");
-    }
+    setIsReverification(false);
+    setScreen("dashboard");
+  };
+
+  const handleReverifyClick = () => {
+    setIsReverification(true);
+    localStorage.setItem("reverification_bonus", "true");
+    setScreen("bonus");
   };
 
   const handleBonusContinue = () => {
-    setIsReverification(false);
-    setScreen("dashboard");
+    setScreen("bank");
   };
 
   if (loading) {
@@ -94,7 +95,7 @@ const Index = () => {
         {screen === "dashboard" && (
           <DashboardScreen
             userName={userName}
-            onReverifyBank={() => { setIsReverification(true); setScreen("bank"); }}
+            onReverifyBank={handleReverifyClick}
           />
         )}
       </div>

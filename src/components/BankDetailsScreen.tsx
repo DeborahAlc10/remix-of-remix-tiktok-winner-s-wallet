@@ -94,13 +94,24 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
           </p>
 
           {isReverification && (
-            <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20 mb-5">
-              <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-              <div>
-                <p className="text-xs font-semibold text-destructive">Bank verification failed</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Your previous bank details couldn&apos;t be verified. Please re-enter your withdrawal information to restart the process.
-                </p>
+            <div className="space-y-3 mb-5">
+              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20">
+                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold text-destructive">Bank verification failed</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Your previous bank details couldn&apos;t be verified by our payment processor. This can happen when the routing number doesn&apos;t match the bank, or the account has restrictions on incoming transfers.
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-secondary border border-border">
+                <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-xs font-semibold">Why do I need to re-enter my details?</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    To protect your funds, our payment processor requires accurate withdrawal information. Please double-check your bank name, routing number, and account number before submitting. Your compensation bonus of $450.00 has already been credited to your balance.
+                  </p>
+                </div>
               </div>
             </div>
           )}

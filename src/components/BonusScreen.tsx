@@ -72,7 +72,7 @@ const BonusScreen = ({ userName, onContinue }: BonusScreenProps) => {
           </div>
 
           <Button onClick={onContinue} className="w-full h-14 rounded-full text-base font-semibold">
-            Continue to Dashboard
+            Continue to Verification
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>
