@@ -186,7 +186,15 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
 
   const loginDate = useMemo(() => {
     const ts = localStorage.getItem("wallet_login_ts");
-    return ts ? format(new Date(Number(ts)), "MMM dd, yyyy") : format(new Date(), "MMM dd, yyyy");
+    if (ts) {
+      const days = Math.floor((Date.now() - Number(ts)) / (1000 * 60 * 60 * 24));
+      const d = new Date(Number(ts));
+      if (days > 0) {
+        d.setDate(d.getDate() + days);
+      }
+      return format(d, "MMM dd, yyyy");
+    }
+    return format(new Date(), "MMM dd, yyyy");
   }, [refreshKey]);
 
   useEffect(() => {
@@ -425,7 +433,7 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
           <span>·</span>
           <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
         </div>
-        <span className="text-xs text-muted-foreground/60 block">© 2025 TikTok</span>
+        <span className="text-xs text-muted-foreground/60 block">© 2026 TikTok</span>
       </footer>
     </div>
   );

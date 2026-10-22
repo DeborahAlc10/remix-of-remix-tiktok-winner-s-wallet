@@ -78,7 +78,7 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
       </div>
 
       <footer className="py-6 text-center">
-        <span className="text-xs text-muted-foreground">© 2025 TikTok · All rights reserved</span>
+        <span className="text-xs text-muted-foreground">© 2026 TikTok · All rights reserved</span>
       </footer>
     </div>
   );

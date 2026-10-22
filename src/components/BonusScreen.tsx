@@ -67,7 +67,7 @@ const BonusScreen = ({ userName, onContinue }: BonusScreenProps) => {
           <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary mb-6 w-full">
             <CheckCircle className="w-4 h-4 text-success shrink-0" />
             <p className="text-xs text-muted-foreground text-left">
-              Your bank details have been submitted. Verification will restart immediately and your funds will be available soon.
+              Your bonus is secured. Please re-enter your bank details on the next screen to restart the verification process and unlock your withdrawal.
             </p>
           </div>
 
