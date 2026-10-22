@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { ChevronLeft, ChevronRight, FastForward, Rewind, Clock, X, RotateCcw } from "lucide-react";
 
 interface AdminTimeControlProps {
@@ -9,6 +9,12 @@ interface AdminTimeControlProps {
 
 const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeControlProps) => {
   const [open, setOpen] = useState(false);
+
+  const isAdmin = useMemo(() => {
+    return new URLSearchParams(window.location.search).has("admin");
+  }, []);
+
+  if (!isAdmin) return null;
 
   const setDay = (day: number) => {
     const clamped = Math.max(0, Math.min(10, day));
