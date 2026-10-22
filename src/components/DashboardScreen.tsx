@@ -25,6 +25,7 @@ import AdminTimeControl from "./AdminTimeControl";
 interface DashboardScreenProps {
   userName: string;
   onReverifyBank?: () => void;
+  onFullReset?: () => void;
 }
 
 const DashboardSkeleton = () => (
@@ -178,7 +179,7 @@ const ActivityRow = ({ event }: { event: ActivityEvent }) => {
 
 // --- Main component ---
 
-const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => {
+const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScreenProps) => {
   const [refreshKey, setRefreshKey] = useState(0);
   const status = useWalletStatus(refreshKey);
   const [loading, setLoading] = useState(true);
@@ -413,6 +414,7 @@ const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => 
       <AdminTimeControl
         currentDay={status.daysSinceLogin}
         onDayChange={() => setRefreshKey((k) => k + 1)}
+        onFullReset={onFullReset}
       />
 
       <footer className="py-4 text-center border-t border-border/40 space-y-2.5">

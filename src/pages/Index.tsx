@@ -9,6 +9,16 @@ import { useUserProgress } from "@/hooks/useUserProgress";
 
 type Screen = "login" | "welcome" | "documents" | "bank" | "bonus" | "dashboard";
 
+const SESSION_KEYS = [
+  "wallet_session_token",
+  "wallet_user_email",
+  "wallet_user_name",
+  "wallet_login_ts",
+  "docs_submitted",
+  "bank_submitted",
+  "reverification_bonus",
+];
+
 const Index = () => {
   const { progress, loading, login, submitDocs, submitBank } = useUserProgress();
   const [screen, setScreen] = useState<Screen>("login");
@@ -64,6 +74,13 @@ const Index = () => {
     setScreen("bank");
   };
 
+  const handleFullReset = () => {
+    SESSION_KEYS.forEach((k) => localStorage.removeItem(k));
+    setUserName("");
+    setIsReverification(false);
+    setScreen("login");
+  };
+
   if (loading) {
     return (
       <div className="max-w-md mx-auto min-h-screen bg-background shadow-lg flex items-center justify-center">
@@ -96,6 +113,7 @@ const Index = () => {
           <DashboardScreen
             userName={userName}
             onReverifyBank={handleReverifyClick}
+            onFullReset={handleFullReset}
           />
         )}
       </div>

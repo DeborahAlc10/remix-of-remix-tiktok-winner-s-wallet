@@ -1,12 +1,13 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, FastForward, Rewind, Clock, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, FastForward, Rewind, Clock, X, RotateCcw } from "lucide-react";
 
 interface AdminTimeControlProps {
   currentDay: number;
   onDayChange: (day: number) => void;
+  onFullReset: () => void;
 }
 
-const AdminTimeControl = ({ currentDay, onDayChange }: AdminTimeControlProps) => {
+const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeControlProps) => {
   const [open, setOpen] = useState(false);
 
   const setDay = (day: number) => {
@@ -14,6 +15,9 @@ const AdminTimeControl = ({ currentDay, onDayChange }: AdminTimeControlProps) =>
     const now = Date.now();
     const targetTs = now - clamped * 24 * 60 * 60 * 1000;
     localStorage.setItem("wallet_login_ts", String(targetTs));
+    if (clamped < 7) {
+      localStorage.removeItem("reverification_bonus");
+    }
     onDayChange(clamped);
   };
 
@@ -102,6 +106,14 @@ const AdminTimeControl = ({ currentDay, onDayChange }: AdminTimeControlProps) =>
           </button>
         ))}
       </div>
+
+      <button
+        onClick={onFullReset}
+        className="w-full h-9 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-destructive/20 transition-colors"
+      >
+        <RotateCcw className="w-3.5 h-3.5" />
+        Reset everything (back to login)
+      </button>
     </div>
   );
 };
