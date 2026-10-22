@@ -43,7 +43,7 @@ const TIMELINE_STEPS: TimelineStep[] = [
   { id: "bank_completed", label: "Funds Ready", description: "Your account is fully verified and funds are ready for withdrawal" },
 ];
 
-export function useWalletStatus(): WalletStatus {
+export function useWalletStatus(refreshKey?: number): WalletStatus {
   return useMemo(() => {
     const ts = localStorage.getItem("wallet_login_ts");
     const daysSinceLogin = ts
@@ -170,5 +170,5 @@ export function useWalletStatus(): WalletStatus {
       estimatedCompletion,
       hasBonus,
     };
-  }, []);
+  }, [refreshKey]);
 }

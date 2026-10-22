@@ -20,6 +20,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useWalletStatus, type ReviewStage, type ActivityEvent } from "@/hooks/useWalletStatus";
 import { format } from "date-fns";
 import TikTokHeader from "./TikTokHeader";
+import AdminTimeControl from "./AdminTimeControl";
 
 interface DashboardScreenProps {
   userName: string;
@@ -178,13 +179,14 @@ const ActivityRow = ({ event }: { event: ActivityEvent }) => {
 // --- Main component ---
 
 const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => {
-  const status = useWalletStatus();
+  const [refreshKey, setRefreshKey] = useState(0);
+  const status = useWalletStatus(refreshKey);
   const [loading, setLoading] = useState(true);
 
   const loginDate = useMemo(() => {
     const ts = localStorage.getItem("wallet_login_ts");
     return ts ? format(new Date(Number(ts)), "MMM dd, yyyy") : format(new Date(), "MMM dd, yyyy");
-  }, []);
+  }, [refreshKey]);
 
   useEffect(() => {
     const timer = setTimeout(() => setLoading(false), 300);
@@ -407,6 +409,11 @@ const DashboardScreen = ({ userName, onReverifyBank }: DashboardScreenProps) => 
           </div>
         </div>
       </div>
+
+      <AdminTimeControl
+        currentDay={status.daysSinceLogin}
+        onDayChange={() => setRefreshKey((k) => k + 1)}
+      />
 
       <footer className="py-4 text-center border-t border-border/40 space-y-2.5">
         <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground/70">
