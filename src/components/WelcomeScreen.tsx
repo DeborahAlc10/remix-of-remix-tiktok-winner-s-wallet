@@ -1,4 +1,5 @@
-import { Gift, ShieldCheck, Clock, CheckCircle, Sparkles } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Gift, ShieldCheck, Clock, CheckCircle, Sparkles, Flame } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import TikTokHeader from "./TikTokHeader";
 
@@ -12,6 +13,68 @@ const benefits = [
   { icon: Clock, text: "Quick — takes about 2 minutes" },
   { icon: CheckCircle, text: "Funds released within 1-3 business days" },
 ];
+
+// Pseudo-random avatar colors for social proof
+const avatarColors = [
+  "bg-blue-500/80",
+  "bg-emerald-500/80",
+  "bg-amber-500/80",
+  "bg-rose-500/80",
+  "bg-cyan-500/80",
+  "bg-orange-500/80",
+];
+
+function useCountdown(initialSeconds: number) {
+  const [seconds, setSeconds] = useState(initialSeconds);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSeconds((prev) => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  return { display: `${pad(hours)}:${pad(minutes)}:${pad(secs)}`, hours, minutes, secs };
+}
+
+const CountdownTimer = () => {
+  const { display } = useCountdown(47 * 3600 + 32 * 60 + 15);
+
+  return (
+    <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-destructive/10 border border-destructive/20">
+      <Flame className="w-4 h-4 text-destructive" />
+      <span className="text-xs font-semibold text-destructive">
+        Reward expires in <span className="tabular-nums">{display}</span>
+      </span>
+    </div>
+  );
+};
+
+const SocialProof = () => (
+  <div className="flex items-center justify-center gap-3">
+    <div className="flex -space-x-2">
+      {avatarColors.map((color, i) => (
+        <div
+          key={i}
+          className={`w-7 h-7 rounded-full border-2 border-background ${color} flex items-center justify-center`}
+        >
+          <span className="text-[9px] font-bold text-white/90">
+            {String.fromCharCode(65 + i)}
+          </span>
+        </div>
+      ))}
+    </div>
+    <p className="text-xs text-muted-foreground">
+      <strong className="text-foreground">50,000+</strong> creators verified this week
+    </p>
+  </div>
+);
 
 const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
   return (
@@ -30,8 +93,13 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
           </span>
         </div>
 
+        {/* Urgency countdown */}
+        <div className="mt-4 mb-2">
+          <CountdownTimer />
+        </div>
+
         {/* Hero prize card */}
-        <div className="relative rounded-2xl bg-gradient-to-br from-foreground via-foreground/95 to-foreground/85 text-primary-foreground p-6 shadow-xl overflow-hidden mt-5 mb-6">
+        <div className="relative rounded-2xl bg-gradient-to-br from-foreground via-foreground/95 to-foreground/85 text-primary-foreground p-6 shadow-xl overflow-hidden mt-3 mb-4">
           <Sparkles className="absolute top-4 right-4 w-14 h-14 opacity-[0.08]" strokeWidth={1.5} />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
           <div className="flex items-center justify-center gap-2 mb-3 relative z-10">
@@ -44,12 +112,17 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
           </p>
         </div>
 
+        {/* Social proof */}
+        <div className="mb-5">
+          <SocialProof />
+        </div>
+
         <p className="text-sm text-muted-foreground text-center mb-6">
           To withdraw your funds, we need to verify your identity. This is a one-time process required by TikTok's payout policy.
         </p>
 
         {/* Benefits list */}
-        <div className="space-y-3 mb-8">
+        <div className="space-y-3 mb-6">
           {benefits.map((b) => {
             const Icon = b.icon;
             return (
