@@ -17,6 +17,7 @@ const SESSION_KEYS = [
   "docs_submitted",
   "bank_submitted",
   "reverification_bonus",
+  "reward_countdown_deadline",
 ];
 
 const Index = () => {

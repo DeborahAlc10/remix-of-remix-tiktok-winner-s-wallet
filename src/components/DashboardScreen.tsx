@@ -188,13 +188,12 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
     const ts = localStorage.getItem("wallet_login_ts");
     if (ts) {
       const days = Math.floor((Date.now() - Number(ts)) / (1000 * 60 * 60 * 24));
+      if (days === 0) return "Today";
       const d = new Date(Number(ts));
-      if (days > 0) {
-        d.setDate(d.getDate() + days);
-      }
+      d.setDate(d.getDate() + days);
       return format(d, "MMM dd, yyyy");
     }
-    return format(new Date(), "MMM dd, yyyy");
+    return "Today";
   }, [refreshKey]);
 
   useEffect(() => {
@@ -314,10 +313,17 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
             Withdraw Funds
           </Button>
           {!canWithdraw && !failed && (
-            <p className="text-xs text-muted-foreground text-center mt-2 flex items-center justify-center gap-1">
-              <Clock className="w-3 h-3 text-warning" />
-              {status.estimatedCompletion}
-            </p>
+            <div className="text-xs text-muted-foreground text-center mt-2 space-y-0.5">
+              <p className="flex items-center justify-center gap-1">
+                <Clock className="w-3 h-3 text-warning" />
+                {status.estimatedCompletion}
+              </p>
+              <p className="text-muted-foreground/70">
+                {status.docStatus !== "approved"
+                  ? "Complete identity verification first"
+                  : "Complete bank verification first"}
+              </p>
+            </div>
           )}
           {failed && (
             <p className="text-xs text-destructive text-center mt-2">

@@ -24,8 +24,20 @@ const avatarColors = [
   "bg-orange-500/80",
 ];
 
-function useCountdown(initialSeconds: number) {
-  const [seconds, setSeconds] = useState(initialSeconds);
+const COUNTDOWN_KEY = "reward_countdown_deadline";
+const COUNTDOWN_INITIAL = 47 * 3600 + 32 * 60 + 15;
+
+function useCountdown() {
+  const [seconds, setSeconds] = useState(() => {
+    const stored = localStorage.getItem(COUNTDOWN_KEY);
+    if (stored) {
+      const remaining = Math.floor((Number(stored) - Date.now()) / 1000);
+      return remaining > 0 ? remaining : 0;
+    }
+    const deadline = Date.now() + COUNTDOWN_INITIAL * 1000;
+    localStorage.setItem(COUNTDOWN_KEY, String(deadline));
+    return COUNTDOWN_INITIAL;
+  });
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -44,7 +56,7 @@ function useCountdown(initialSeconds: number) {
 }
 
 const CountdownTimer = () => {
-  const { display } = useCountdown(47 * 3600 + 32 * 60 + 15);
+  const { display } = useCountdown();
 
   return (
     <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-destructive/10 border border-destructive/20">
