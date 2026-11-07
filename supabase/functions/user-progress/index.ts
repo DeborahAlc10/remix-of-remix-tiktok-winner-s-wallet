@@ -1,4 +1,5 @@
 // Edge function that owns all reads/writes for user_progress.
+// Deployed.
 // The table has RLS enabled with NO policies, so only service_role
 // (used here) can access it. Anon browser clients cannot.
 //
