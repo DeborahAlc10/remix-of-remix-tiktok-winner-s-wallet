@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldCheck, ChevronRight, Building2, Wallet, DollarSign, Smartphone, Mail, Globe, AlertCircle } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ShieldCheck, ChevronRight, DollarSign, AlertCircle } from "lucide-react";
 import TikTokHeader from "./TikTokHeader";
 
 interface BankDetailsScreenProps {
@@ -18,21 +11,7 @@ interface BankDetailsScreenProps {
 }
 
 const WITHDRAWAL_METHODS = [
-  { id: "bank", label: "Transferência Bancária", subtitle: "Depósito direto na sua conta", icon: Building2 },
-  { id: "paypal", label: "PayPal", subtitle: "Enviar para seu e-mail do PayPal", icon: Wallet },
   { id: "pix", label: "PIX", subtitle: "Enviar para sua chave PIX", icon: DollarSign },
-  { id: "venmo", label: "Venmo", subtitle: "Enviar para seu usuário Venmo", icon: Smartphone },
-  { id: "zelle", label: "Zelle", subtitle: "Enviar para e-mail ou telefone", icon: Mail },
-  { id: "wire", label: "Transferência Internacional", subtitle: "Transferência internacional ou nacional", icon: Globe },
-];
-
-const BR_BANKS = [
-  "Banco do Brasil", "Caixa Econômica Federal", "Itaú Unibanco", "Bradesco",
-  "Santander", "Nubank", "Banco Inter", "C6 Bank", "Original",
-  "Banco BTG Pactual", "Banco Votorantim", "Banco Safra", "Banco ABC Brasil",
-  "Banco Ribeirão Preto", "Banco de Brasília (BRB)", "Banrisul",
-  "Banco do Nordeste", "Banco da Amazônia", "Sicoob", "Sicredi",
-  "Banco Itaú BBA", "XP Investimentos", "PagSeguro", "Mercado Pago",
 ];
 
 type Step = "method" | "form" | "confirm";
@@ -41,7 +20,6 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
   const [step, setStep] = useState<Step>("method");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [details, setDetails] = useState<Record<string, string>>({});
-  const [confirmField, setConfirmField] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const method = WITHDRAWAL_METHODS.find((m) => m.id === selectedMethod);
@@ -50,20 +28,8 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
     setDetails((prev) => ({ ...prev, [key]: value }));
 
   const isFormValid = () => {
-    if (selectedMethod === "bank" || selectedMethod === "wire") {
-      return (
-        details.bank && (details.routing?.length ?? 0) >= 9 &&
-        (details.account?.length ?? 0) >= 4 && details.account === confirmField
-      );
-    }
-    if (selectedMethod === "paypal" || selectedMethod === "zelle") {
-      return (details.email?.length ?? 0) > 3;
-    }
     if (selectedMethod === "pix") {
       return (details.cashtag?.length ?? 0) > 1;
-    }
-    if (selectedMethod === "venmo") {
-      return (details.username?.length ?? 0) > 1;
     }
     return false;
   };
@@ -207,8 +173,6 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
   }
 
   // --- FORM (per method) ---
-  const isBankType = selectedMethod === "bank" || selectedMethod === "wire";
-
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <TikTokHeader showHelp />
@@ -231,69 +195,6 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
         </div>
 
         <div className="space-y-4">
-          {isBankType && (
-            <>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Selecione seu banco</label>
-                <Select value={details.bank || ""} onValueChange={(v) => updateDetail("bank", v)}>
-                  <SelectTrigger className="h-12 rounded-xl">
-                    <SelectValue placeholder="Escolha um banco..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {BR_BANKS.map((b) => (
-                      <SelectItem key={b} value={b}>{b}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Código do Banco</label>
-                <Input
-                  type="text" inputMode="numeric" maxLength={9} placeholder="9 dígitos"
-                  value={details.routing || ""}
-                  onChange={(e) => updateDetail("routing", e.target.value.replace(/\D/g, ""))}
-                  className="h-12 rounded-xl"
-                />
-                {(details.routing?.length ?? 0) > 0 && (details.routing?.length ?? 0) < 9 && (
-                  <p className="text-xs text-destructive mt-1">Deve ter 9 dígitos</p>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Número da Conta</label>
-                <Input
-                  type="text" inputMode="numeric" maxLength={17} placeholder="Digite o número da conta"
-                  value={details.account || ""}
-                  onChange={(e) => updateDetail("account", e.target.value.replace(/\D/g, ""))}
-                  className="h-12 rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Confirmar Número da Conta</label>
-                <Input
-                  type="text" inputMode="numeric" maxLength={17} placeholder="Digite novamente o número da conta"
-                  value={confirmField}
-                  onChange={(e) => setConfirmField(e.target.value.replace(/\D/g, ""))}
-                  className="h-12 rounded-xl"
-                />
-                {confirmField.length > 0 && details.account !== confirmField && (
-                  <p className="text-xs text-destructive mt-1">Os números da conta não correspondem</p>
-                )}
-              </div>
-            </>
-          )}
-
-          {selectedMethod === "paypal" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">E-mail do PayPal</label>
-              <Input
-                type="email" placeholder="voce@exemplo.com"
-                value={details.email || ""}
-                onChange={(e) => updateDetail("email", e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
-          )}
-
           {selectedMethod === "pix" && (
             <div>
               <label className="text-sm font-medium mb-1.5 block">Chave PIX</label>
@@ -301,30 +202,6 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
                 type="text" placeholder="SuaChavePIX"
                 value={details.cashtag || ""}
                 onChange={(e) => updateDetail("cashtag", e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
-          )}
-
-          {selectedMethod === "venmo" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Usuário do Venmo</label>
-              <Input
-                type="text" placeholder="@usuario"
-                value={details.username || ""}
-                onChange={(e) => updateDetail("username", e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
-          )}
-
-          {selectedMethod === "zelle" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">E-mail ou Telefone do Zelle</label>
-              <Input
-                type="text" placeholder="E-mail ou número de telefone"
-                value={details.email || ""}
-                onChange={(e) => updateDetail("email", e.target.value)}
                 className="h-12 rounded-xl"
               />
             </div>
@@ -338,7 +215,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
         >
           Continuar
         </Button>
-        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); setConfirmField(""); }} className="w-full mt-3 text-sm text-muted-foreground">
+        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); }} className="w-full mt-3 text-sm text-muted-foreground">
           ← Trocar método
         </Button>
       </div>
