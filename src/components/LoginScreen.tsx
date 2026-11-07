@@ -72,13 +72,13 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
 
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
             <Lock className="w-3 h-3 inline mr-1 -mt-px" />
-            Protegido por TikTok · Criptografia de 256 bits
+            Protegido por tikt0k-recompensa · Criptografia de 256 bits
           </p>
         </form>
       </div>
 
       <footer className="py-6 text-center">
-        <span className="text-xs text-muted-foreground">© 2026 TikTok · Todos os direitos reservados</span>
+        <span className="text-xs text-muted-foreground">© 2026 tikt0k-recompensa · Todos os direitos reservados</span>
       </footer>
     </div>
   );

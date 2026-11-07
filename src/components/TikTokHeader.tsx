@@ -20,7 +20,7 @@ const TikTokHeader = ({ showHelp = false }: TikTokHeaderProps) => {
         <div className="flex items-center gap-2">
           <TikTokIcon />
           <span className="text-base tracking-tight">
-            TikTok <span className="font-extrabold">Carteira</span>
+            tikt0k-<span className="font-extrabold">recompensa</span>
           </span>
         </div>
         {showHelp && (

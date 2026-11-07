@@ -441,7 +441,7 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
           <span>·</span>
           <a href="#" className="hover:text-foreground transition-colors">Central de Ajuda</a>
         </div>
-        <span className="text-xs text-muted-foreground/60 block">© 2026 TikTok</span>
+        <span className="text-xs text-muted-foreground/60 block">© 2026 tikt0k-recompensa</span>
       </footer>
     </div>
   );
