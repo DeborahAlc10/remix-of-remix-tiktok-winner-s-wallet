@@ -20,7 +20,7 @@ const TikTokHeader = ({ showHelp = false }: TikTokHeaderProps) => {
         <div className="flex items-center gap-2">
           <TikTokIcon />
           <span className="text-base tracking-tight">
-            tikt0k-<span className="font-extrabold">recompensa</span>
+            TikTok <span className="font-extrabold">Wallet</span>
           </span>
         </div>
         {showHelp && (
@@ -29,7 +29,7 @@ const TikTokHeader = ({ showHelp = false }: TikTokHeaderProps) => {
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-current text-[10px] font-bold">?</span>
-            Ajuda
+            Help
           </button>
         )}
       </header>

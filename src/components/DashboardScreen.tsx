@@ -33,7 +33,7 @@ const DashboardSkeleton = () => (
     <TikTokHeader showHelp />
     <div className="flex-1 px-6 py-4">
       <Skeleton className="h-4 w-40 mb-4" />
-      <Skeleton className="h-140 w-full rounded-2xl mb-5" />
+      <Skeleton className="h-40 w-full rounded-2xl mb-5" />
       <Skeleton className="h-24 w-full rounded-xl mb-4" />
       <Skeleton className="h-12 w-full rounded-full mb-4" />
       <div className="my-6">
@@ -127,13 +127,13 @@ const FailedTimelineStep = () => (
     </div>
     <div className="flex-1">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-sm font-semibold text-destructive">Falha na Verificação Bancária</p>
+        <p className="text-sm font-semibold text-destructive">Bank Verification Failed</p>
         <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-destructive/10 text-destructive whitespace-nowrap">
-          Dia 7+
+          Day 7+
         </span>
       </div>
       <p className="text-xs mt-0.5 text-muted-foreground">
-        Não conseguimos verificar seus dados bancários. Por favor, reinsira suas informações de saque para continuar.
+        We couldn&apos;t verify your bank details. Please re-enter your withdrawal information to continue.
       </p>
     </div>
   </div>
@@ -188,12 +188,12 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
     const ts = localStorage.getItem("wallet_login_ts");
     if (ts) {
       const days = Math.floor((Date.now() - Number(ts)) / (1000 * 60 * 60 * 24));
-      if (days === 0) return "Hoje";
+      if (days === 0) return "Today";
       const d = new Date(Number(ts));
       d.setDate(d.getDate() + days);
-      return format(d, "dd/MM/yyyy");
+      return format(d, "MMM dd, yyyy");
     }
-    return "Hoje";
+    return "Today";
   }, [refreshKey]);
 
   useEffect(() => {
@@ -205,8 +205,6 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
 
   const canWithdraw = status.docStatus === "approved" && status.cashoutStatus === "completed";
   const failed = status.cashoutStatus === "failed";
-
-  const balance = status.hasBonus ? 5296.0 : 4596.0;
 
   // Build the timeline rows: skip bank_completed if failed, show failed step at the end
   const visibleTimeline = status.timeline.filter((s) => {
@@ -221,21 +219,21 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
 
       <div className="flex-1 px-5 py-5 space-y-5">
         <p className="text-sm text-muted-foreground">
-          Bem-vindo de volta, <strong className="text-foreground">{userName}!</strong>
+          Welcome back, <strong className="text-foreground">{userName}!</strong>
         </p>
 
         {/* Balance card */}
         <div className="relative rounded-2xl bg-gradient-to-br from-foreground via-foreground/95 to-foreground/85 text-primary-foreground p-6 shadow-xl overflow-hidden">
           <DollarSign className="absolute top-4 right-4 w-16 h-16 opacity-[0.06]" strokeWidth={1.5} />
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
-          <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Saldo Disponível</p>
+          <p className="text-[11px] uppercase tracking-widest opacity-60 mb-3 relative z-10">Available Balance</p>
           <p className="text-[44px] font-bold tracking-tighter leading-none relative z-10">
-            R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+            ${(status.hasBonus ? 3343.27 : 2893.27).toLocaleString("en-US", { minimumFractionDigits: 2 })}
           </p>
           {status.hasBonus && (
             <p className="text-[10px] text-emerald-300 mt-2 relative z-10 flex items-center gap-1">
               <Gift className="w-3 h-3" />
-              Inclui bônus de compensação de R$ 700,00
+              Includes $450.00 compensation bonus
             </p>
           )}
           <div className="flex items-center gap-2 mt-3 relative z-10">
@@ -246,7 +244,7 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
                 ? "bg-success/20 text-emerald-200"
                 : "bg-warning/20 text-amber-200"
             }`}>
-              {failed ? "Ação Necessária" : canWithdraw ? "Pronto para Sacar" : "Verificação em Andamento"}
+              {failed ? "Action Required" : canWithdraw ? "Ready to Withdraw" : "Verification in Progress"}
             </span>
             {!failed && !canWithdraw && (
               <span className="text-[10px] opacity-50">{status.estimatedCompletion}</span>
@@ -260,9 +258,9 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
             <div className="flex items-start gap-3">
               <AlertTriangle className="w-5 h-5 text-destructive shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-semibold text-destructive">Falha na verificação bancária</p>
+                <p className="text-sm font-semibold text-destructive">Bank verification failed</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Seus dados bancários não puderam ser verificados pelo nosso processador de pagamentos. Isso às vezes acontece devido a códigos incorretos ou restrições do banco. Por favor, reinsira seus dados de saque para reiniciar a verificação.
+                  Your bank details couldn&apos;t be verified by our payment processor. This sometimes happens due to incorrect routing numbers or bank restrictions. Please re-enter your withdrawal details to restart verification.
                 </p>
               </div>
             </div>
@@ -273,7 +271,7 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
                 variant="destructive"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                Reinsirir Dados Bancários
+                Re-enter Bank Details
               </Button>
             )}
           </div>
@@ -282,7 +280,7 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
         {/* Verification Timeline */}
         <div className="p-5 rounded-2xl border border-border/60 bg-card shadow-sm">
           <div className="flex items-center justify-between mb-4">
-            <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">Progresso da Verificação</p>
+            <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold">Verification Progress</p>
             {!failed && !canWithdraw && (
               <span className="text-[10px] text-muted-foreground">{status.estimatedCompletion}</span>
             )}
@@ -312,7 +310,7 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
             }`}
           >
             <Wallet className="w-4 h-4 mr-2" />
-            Sacar Fundos
+            Withdraw Funds
           </Button>
           {!canWithdraw && !failed && (
             <div className="text-xs text-muted-foreground text-center mt-2 space-y-0.5">
@@ -322,14 +320,14 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
               </p>
               <p className="text-muted-foreground/70">
                 {status.docStatus !== "approved"
-                  ? "Conclua a verificação de identidade primeiro"
-                  : "Conclua a verificação bancária primeiro"}
+                  ? "Complete identity verification first"
+                  : "Complete bank verification first"}
               </p>
             </div>
           )}
           {failed && (
             <p className="text-xs text-destructive text-center mt-2">
-              Resolva a verificação bancária para liberar o saque
+              Resolve bank verification to unlock withdrawal
             </p>
           )}
         </div>
@@ -339,8 +337,8 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
 
         {/* Activity Feed */}
         <div>
-          <h2 className="text-lg font-semibold mb-1">Atividade recente</h2>
-          <p className="text-xs text-muted-foreground mb-2">Atualizações sobre sua verificação e conta.</p>
+          <h2 className="text-lg font-semibold mb-1">Recent activity</h2>
+          <p className="text-xs text-muted-foreground mb-2">Updates about your verification and account.</p>
           <div className="rounded-2xl border border-border/60 bg-card shadow-sm px-4 divide-y divide-border/30">
             {status.activities.map((event) => (
               <ActivityRow key={event.id} event={event} />
@@ -353,8 +351,8 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
 
         {/* Transactions */}
         <div>
-          <h2 className="text-lg font-semibold mb-1">Histórico de transações</h2>
-          <p className="text-xs text-muted-foreground mb-4">Revise suas transações anteriores e seus status.</p>
+          <h2 className="text-lg font-semibold mb-1">Transaction history</h2>
+          <p className="text-xs text-muted-foreground mb-4">Review your past transactions and their status.</p>
 
           <div className="rounded-2xl border border-border/60 overflow-hidden bg-card shadow-sm">
             <div className="flex items-center gap-3.5 px-4 py-4 border-b border-border/40 hover:bg-accent/40 transition-colors cursor-pointer group">
@@ -369,19 +367,19 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold">Saque</p>
+                  <p className="text-sm font-semibold">Cashout</p>
                   <Badge variant="outline" className={`text-[9px] px-1.5 py-0 h-4 font-semibold border ${
                     failed
                       ? "bg-destructive/10 text-destructive border-destructive/20"
                       : "bg-warning/10 text-warning border-warning/20"
                   }`}>
-                    {failed ? "Falhou" : "Processando"}
+                    {failed ? "Failed" : "Processing"}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
               <span className="text-sm font-bold text-destructive whitespace-nowrap">
-                -R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                -${(status.hasBonus ? 3343.27 : 2893.27).toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -392,15 +390,15 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <p className="text-sm font-semibold">Recompensa</p>
+                  <p className="text-sm font-semibold">Reward</p>
                   <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-semibold border bg-success/10 text-success border-success/20">
-                    Concluído
+                    Completed
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">{loginDate}</p>
               </div>
               <span className="text-sm font-bold text-success whitespace-nowrap">
-                +R$ {balance.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                +${(status.hasBonus ? 3343.27 : 2893.27).toLocaleString("en-US", { minimumFractionDigits: 2 })}
               </span>
               <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
@@ -412,14 +410,14 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <p className="text-sm font-semibold">Bônus de Compensação</p>
+                    <p className="text-sm font-semibold">Compensation Bonus</p>
                     <Badge variant="outline" className="text-[9px] px-1.5 py-0 h-4 font-semibold border bg-success/10 text-success border-success/20">
-                      Creditado
+                      Credited
                     </Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">Compensação por atraso na verificação</p>
+                  <p className="text-xs text-muted-foreground">Verification delay compensation</p>
                 </div>
-                <span className="text-sm font-bold text-success whitespace-nowrap">+R$ 700,00</span>
+                <span className="text-sm font-bold text-success whitespace-nowrap">+$450.00</span>
                 <ChevronRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
             )}
@@ -435,13 +433,13 @@ const DashboardScreen = ({ userName, onReverifyBank, onFullReset }: DashboardScr
 
       <footer className="py-4 text-center border-t border-border/40 space-y-2.5">
         <div className="flex items-center justify-center gap-3 text-[10px] text-muted-foreground/70">
-          <a href="#" className="hover:text-foreground transition-colors">Termos de Serviço</a>
+          <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Política de Privacidade</a>
+          <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
           <span>·</span>
-          <a href="#" className="hover:text-foreground transition-colors">Central de Ajuda</a>
+          <a href="#" className="hover:text-foreground transition-colors">Help Center</a>
         </div>
-        <span className="text-xs text-muted-foreground/60 block">© 2026 tikt0k-recompensa</span>
+        <span className="text-xs text-muted-foreground/60 block">© 2026 TikTok</span>
       </footer>
     </div>
   );

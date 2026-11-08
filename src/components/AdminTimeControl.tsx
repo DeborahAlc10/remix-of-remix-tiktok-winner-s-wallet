@@ -32,7 +32,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
       <button
         onClick={() => setOpen(true)}
         className="fixed bottom-5 right-5 z-50 w-11 h-11 rounded-full bg-foreground text-primary-foreground shadow-lg flex items-center justify-center hover:scale-105 transition-transform"
-        aria-label="Controle de tempo admin"
+        aria-label="Admin time control"
       >
         <Clock className="w-5 h-5" />
       </button>
@@ -40,18 +40,18 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
   }
 
   const stageLabel =
-    currentDay < 1 ? "Documentos Recebidos" :
-    currentDay < 3 ? "Revisão de Identidade" :
-    currentDay < 5 ? "Verificação Bancária" :
-    currentDay >= 7 ? "Banco Falhou" :
-    "Fundos Prontos";
+    currentDay < 1 ? "Documents Received" :
+    currentDay < 3 ? "Identity Review" :
+    currentDay < 5 ? "Bank Verification" :
+    currentDay >= 7 ? "Bank Failed" :
+    "Funds Ready";
 
   return (
     <div className="fixed bottom-5 right-5 z-50 rounded-2xl bg-card border border-border shadow-xl p-4 w-64 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold">Pré-visualização Admin</span>
+          <span className="text-xs font-semibold">Admin Preview</span>
         </div>
         <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
           <X className="w-4 h-4" />
@@ -59,8 +59,8 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
       </div>
 
       <div className="text-center py-2">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Dia Atual</p>
-        <p className="text-2xl font-bold">Dia {currentDay}</p>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Current Day</p>
+        <p className="text-2xl font-bold">Day {currentDay}</p>
         <p className="text-[11px] text-muted-foreground mt-0.5">{stageLabel}</p>
       </div>
 
@@ -68,7 +68,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
         <button
           onClick={() => setDay(0)}
           className="w-8 h-8 rounded-lg bg-secondary hover:bg-accent flex items-center justify-center transition-colors"
-          aria-label="Voltar ao dia 0"
+          aria-label="Reset to day 0"
         >
           <Rewind className="w-3.5 h-3.5" />
         </button>
@@ -76,7 +76,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
           onClick={() => setDay(currentDay - 1)}
           disabled={currentDay <= 0}
           className="w-9 h-9 rounded-lg bg-secondary hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-          aria-label="Dia anterior"
+          aria-label="Previous day"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -84,14 +84,14 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
           onClick={() => setDay(currentDay + 1)}
           disabled={currentDay >= 10}
           className="w-9 h-9 rounded-lg bg-secondary hover:bg-accent disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center transition-colors"
-          aria-label="Próximo dia"
+          aria-label="Next day"
         >
           <ChevronRight className="w-4 h-4" />
         </button>
         <button
           onClick={() => setDay(7)}
           className="w-8 h-8 rounded-lg bg-secondary hover:bg-accent flex items-center justify-center transition-colors"
-          aria-label="Pular para falha"
+          aria-label="Skip to failure"
         >
           <FastForward className="w-3.5 h-3.5" />
         </button>
@@ -118,7 +118,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
         className="w-full h-9 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-destructive/20 transition-colors"
       >
         <RotateCcw className="w-3.5 h-3.5" />
-        Resetar tudo (voltar ao login)
+        Reset everything (back to login)
       </button>
     </div>
   );

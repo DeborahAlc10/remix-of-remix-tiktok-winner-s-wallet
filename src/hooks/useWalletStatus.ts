@@ -35,12 +35,12 @@ interface WalletStatus {
 }
 
 const TIMELINE_STEPS: TimelineStep[] = [
-  { id: "doc_received", label: "Documentos Recebidos", description: "Seus documentos foram enviados e criptografados" },
-  { id: "doc_reviewing", label: "Revisão de Identidade", description: "Nossa equipe está verificando seus documentos de identidade" },
-  { id: "doc_approved", label: "Identidade Aprovada", description: "Sua identidade foi verificada com sucesso" },
-  { id: "bank_verifying", label: "Verificação Bancária", description: "Verificando seu método de saque com nosso processador de pagamentos" },
-  { id: "bank_failed", label: "Falha na Verificação Bancária", description: "Não conseguimos verificar seus dados bancários. Por favor, reinsira-os." },
-  { id: "bank_completed", label: "Fundos Prontos", description: "Sua conta está totalmente verificada e os fundos estão prontos para saque" },
+  { id: "doc_received", label: "Documents Received", description: "Your documents were uploaded and encrypted" },
+  { id: "doc_reviewing", label: "Identity Review", description: "Our team is verifying your identity documents" },
+  { id: "doc_approved", label: "Identity Approved", description: "Your identity has been verified successfully" },
+  { id: "bank_verifying", label: "Bank Verification", description: "Verifying your withdrawal method with our payment processor" },
+  { id: "bank_failed", label: "Bank Verification Failed", description: "We couldn't verify your bank details. Please re-enter them." },
+  { id: "bank_completed", label: "Funds Ready", description: "Your account is fully verified and funds are ready for withdrawal" },
 ];
 
 export function useWalletStatus(refreshKey?: number): WalletStatus {
@@ -74,94 +74,94 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
 
     activities.push({
       id: "evt_encrypt",
-      label: "Documentos criptografados e armazenados",
-      description: "Seus 3 documentos foram protegidos com criptografia de ponta a ponta",
+      label: "Documents encrypted & stored",
+      description: "Your 3 documents were secured with end-to-end encryption",
       icon: "shield",
-      timestamp: "Dia 0",
+      timestamp: "Day 0",
     });
 
     if (days >= 1) {
       activities.push({
         id: "evt_review_start",
-        label: "Revisão de identidade iniciada",
-        description: "Sistema de verificação automatizada começou a processar seus documentos",
+        label: "Identity review started",
+        description: "Automated verification system began processing your documents",
         icon: "clock",
-        timestamp: "Dia 1",
+        timestamp: "Day 1",
       });
     }
 
     if (days >= 3) {
       activities.push({
         id: "evt_doc_approved",
-        label: "Identidade verificada",
-        description: "Seus documentos de identidade passaram nas verificações",
+        label: "Identity verified",
+        description: "Your identity documents passed verification checks",
         icon: "check",
-        timestamp: "Dia 3",
+        timestamp: "Day 3",
       });
     }
 
     if (days >= 4) {
       activities.push({
         id: "evt_bank_start",
-        label: "Verificação bancária iniciada",
-        description: "Nosso processador de pagamentos começou a verificar seu método de saque",
+        label: "Bank verification initiated",
+        description: "Our payment processor started verifying your withdrawal method",
         icon: "bank",
-        timestamp: "Dia 4",
+        timestamp: "Day 4",
       });
     }
 
     if (cashoutFailed) {
       activities.push({
         id: "evt_bank_failed",
-        label: "Falha na verificação bancária",
-        description: "Seus dados bancários não puderam ser verificados. Por favor, reinsira suas informações de saque.",
+        label: "Bank verification failed",
+        description: "Your bank details could not be verified. Please re-enter your withdrawal information.",
         icon: "alert",
-        timestamp: "Dia 7",
+        timestamp: "Day 7",
       });
     } else if (cashoutCompleted) {
       activities.push({
         id: "evt_bank_done",
-        label: "Verificação bancária concluída",
-        description: "Seu método de saque está verificado e pronto",
+        label: "Bank verification complete",
+        description: "Your withdrawal method is verified and ready",
         icon: "check",
-        timestamp: "Dia 5",
+        timestamp: "Day 5",
       });
     }
 
     if (hasBonus) {
       activities.unshift({
         id: "evt_bonus",
-        label: "Bônus de compensação creditado",
-        description: "Bônus de R$ 700,00 adicionado ao seu saldo pelo atraso na verificação",
+        label: "Compensation bonus credited",
+        description: "$450.00 bonus added to your balance for the verification delay",
         icon: "gift",
-        timestamp: "Hoje",
+        timestamp: "Today",
       });
     }
 
     // Estimate completion
     let estimatedCompletion: string;
     if (cashoutFailed) {
-      estimatedCompletion = "Aguardando re-verificação";
+      estimatedCompletion = "Pending re-verification";
     } else if (cashoutCompleted) {
-      estimatedCompletion = "Concluído";
+      estimatedCompletion = "Complete";
     } else if (days >= 3) {
       const remaining = Math.max(1, 7 - days);
-      estimatedCompletion = `~${remaining} dia${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`;
+      estimatedCompletion = `~${remaining} day${remaining > 1 ? "s" : ""} remaining`;
     } else {
-      estimatedCompletion = "~5-7 dias restantes";
+      estimatedCompletion = "~5-7 days remaining";
     }
 
     return {
       daysSinceLogin: days,
       docStatus: docApproved ? "approved" : "under_review",
-      docLabel: docApproved ? "Documentos Aprovados" : "Documentos em Revisão",
+      docLabel: docApproved ? "Documents Approved" : "Documents Under Review",
       docColor: docApproved ? "success" : "warning",
       cashoutStatus: cashoutFailed ? "failed" : cashoutCompleted ? "completed" : "processing",
       cashoutLabel: cashoutFailed
-        ? "Falhou - Verificação bancária necessária"
+        ? "Failed - Bank verification required"
         : cashoutCompleted
-        ? "Verificado e Pronto"
-        : "Processando (3-5 dias úteis)",
+        ? "Verified & Ready"
+        : "Processing (3-5 business days)",
       cashoutColor: cashoutFailed ? "destructive" : "warning",
       currentStage,
       timeline: TIMELINE_STEPS,

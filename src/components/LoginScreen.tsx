@@ -26,27 +26,27 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
       <TikTokHeader />
 
       <div className="flex-1 flex flex-col px-6 pt-10">
-        <h1 className="text-2xl font-semibold text-center mb-2">Bem-vindo, Usuário</h1>
-        <p className="text-sm text-muted-foreground text-center mb-8">Acesse sua carteira</p>
+        <h1 className="text-2xl font-semibold text-center mb-2">Welcome, User</h1>
+        <p className="text-sm text-muted-foreground text-center mb-8">Sign in to access your wallet</p>
 
         {/* Prize card */}
         <div className="rounded-2xl bg-secondary border border-border/60 p-6 mb-10 text-center shadow-sm">
           <div className="flex items-center justify-center gap-2 mb-3">
             <Gift className="w-5 h-5 text-success" />
-            <span className="text-sm font-semibold text-muted-foreground">Seu Saldo de Recompensa</span>
+            <span className="text-sm font-semibold text-muted-foreground">Your Reward Balance</span>
           </div>
-          <p className="text-[42px] font-bold tracking-tighter leading-none">R$ 4.596,00</p>
-          <p className="text-xs text-muted-foreground mt-3">Faça login e verifique sua identidade para sacar</p>
+          <p className="text-[42px] font-bold tracking-tighter leading-none">$2,893.27</p>
+          <p className="text-xs text-muted-foreground mt-3">Login & verify your identity to withdraw</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="text-sm font-semibold mb-2 block">E-mail</label>
+            <label className="text-sm font-semibold mb-2 block">Email</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 type="email"
-                placeholder="Seu endereço de e-mail"
+                placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="h-12 rounded-full bg-secondary border-0 pl-11 pr-5"
@@ -63,22 +63,22 @@ const LoginScreen = ({ onLogin }: LoginScreenProps) => {
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Entrando...
+                Signing in...
               </span>
             ) : (
-              "Entrar"
+              "Log in"
             )}
           </Button>
 
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
             <Lock className="w-3 h-3 inline mr-1 -mt-px" />
-            Protegido por tikt0k-recompensa · Criptografia de 256 bits
+            Secured by TikTok · 256-bit encryption
           </p>
         </form>
       </div>
 
       <footer className="py-6 text-center">
-        <span className="text-xs text-muted-foreground">© 2026 tikt0k-recompensa · Todos os direitos reservados</span>
+        <span className="text-xs text-muted-foreground">© 2026 TikTok · All rights reserved</span>
       </footer>
     </div>
   );
