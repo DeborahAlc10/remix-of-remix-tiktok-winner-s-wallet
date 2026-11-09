@@ -57,9 +57,20 @@ export function useUserProgress() {
       setLoading(false);
       return;
     }
+    let done = false;
+    const timeout = setTimeout(() => {
+      if (!done) {
+        done = true;
+        clearLocalSession();
+        setLoading(false);
+      }
+    }, 5000);
     (async () => {
       setLoading(true);
       const res = await callProgress({ action: "get", email });
+      if (done) return;
+      done = true;
+      clearTimeout(timeout);
       if (res?.unauthorized) {
         clearLocalSession();
       } else if (res?.progress) {
