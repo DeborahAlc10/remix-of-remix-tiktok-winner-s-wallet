@@ -37,8 +37,8 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
     setMessage("");
     onOpenChange(false);
     toast({
-      title: "Message sent!",
-      description: "We'll get back to you within 24 hours.",
+      title: "Mensagem enviada!",
+      description: "Entraremos em contato em até 24 horas.",
     });
   };
 
@@ -46,17 +46,17 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">Contact Support</DialogTitle>
+          <DialogTitle className="text-lg font-bold">Contatar Suporte</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
-            Have a question or need help? Fill out the form below and our team will get back to you as soon as possible.
+            Tem alguma dúvida ou precisa de ajuda? Preencha o formulário abaixo e nossa equipe entrará em contato o mais rápido possível.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Full Name</label>
+            <label className="text-sm font-semibold text-foreground">Nome Completo</label>
             <Input
-              placeholder="Enter your full name"
+              placeholder="Digite seu nome completo"
               value={name}
               onChange={(e) => setName(e.target.value)}
               maxLength={100}
@@ -64,10 +64,10 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Email Address</label>
+            <label className="text-sm font-semibold text-foreground">Endereço de E-mail</label>
             <Input
               type="email"
-              placeholder="Enter your email address"
+              placeholder="Digite seu e-mail"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               maxLength={255}
@@ -75,25 +75,25 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Subject</label>
+            <label className="text-sm font-semibold text-foreground">Assunto</label>
             <Select value={subject} onValueChange={setSubject}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a subject" />
+                <SelectValue placeholder="Selecione um assunto" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="general">General Question</SelectItem>
-                <SelectItem value="transaction">Transaction Issue</SelectItem>
-                <SelectItem value="account">Account Problem</SelectItem>
-                <SelectItem value="withdrawal">Withdrawal Status</SelectItem>
-                <SelectItem value="other">Other</SelectItem>
+                <SelectItem value="general">Dúvida Geral</SelectItem>
+                <SelectItem value="transaction">Problema com Transação</SelectItem>
+                <SelectItem value="account">Problema na Conta</SelectItem>
+                <SelectItem value="withdrawal">Status do Saque</SelectItem>
+                <SelectItem value="other">Outro</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Message</label>
+            <label className="text-sm font-semibold text-foreground">Mensagem</label>
             <Textarea
-              placeholder="Describe your question or issue in detail..."
+              placeholder="Descreva sua dúvida ou problema em detalhes..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               maxLength={1000}
@@ -102,7 +102,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           </div>
 
           <Button type="submit" className="w-full font-bold">
-            Send Message
+            Enviar Mensagem
           </Button>
         </form>
       </DialogContent>

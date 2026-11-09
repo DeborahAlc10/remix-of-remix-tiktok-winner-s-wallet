@@ -17,9 +17,9 @@ interface UploadField {
 }
 
 const fields: UploadField[] = [
-  { label: "Identity Document (Front)", shortLabel: "ID Front", description: "Upload the front of your ID, passport, or driver's license", key: "id_front", icon: FileText },
-  { label: "Identity Document (Back)", shortLabel: "ID Back", description: "Upload the back of your identity document", key: "id_back", icon: FileText },
-  { label: "Selfie with Document", shortLabel: "Selfie", description: "Take a selfie holding your identity document", key: "selfie", icon: User },
+  { label: "Documento de Identidade (Frente)", shortLabel: "RG Frente", description: "Envie a frente do seu RG, CNH ou passaporte", key: "id_front", icon: FileText },
+  { label: "Documento de Identidade (Verso)", shortLabel: "RG Verso", description: "Envie o verso do seu documento de identidade", key: "id_back", icon: FileText },
+  { label: "Selfie com Documento", shortLabel: "Selfie", description: "Tire uma selfie segurando seu documento de identidade", key: "selfie", icon: User },
 ];
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
@@ -75,20 +75,20 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
 
       <div className="flex-1 px-6 py-6">
         <p className="text-sm text-muted-foreground mb-1">
-          Welcome back, <strong className="text-foreground">{userName}!</strong>
+          Bem-vindo de volta, <strong className="text-foreground">{userName}!</strong>
         </p>
 
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Verify your identity</h2>
+          <h2 className="text-xl font-semibold">Verifique sua identidade</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
-            Step 2 of 4
+            Passo 2 de 4
           </span>
         </div>
 
         {/* Progress bar */}
         <div className="mb-5">
           <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-            <span>{uploadedCount} of {fields.length} uploaded</span>
+            <span>{uploadedCount} de {fields.length} enviados</span>
             <span>{Math.round(progressPercent)}%</span>
           </div>
           <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
@@ -133,7 +133,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
             </div>
             <div>
               <p className="text-sm font-semibold">
-                Document {currentStep + 1} of {fields.length}
+                Documento {currentStep + 1} de {fields.length}
               </p>
               <p className="text-xs text-muted-foreground">{field.shortLabel}</p>
             </div>
@@ -165,13 +165,13 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
               <div className="text-center">
                 <p className="text-sm font-semibold text-success truncate max-w-[220px]">{files[field.key]!.name}</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  {autoAdvancing ? "Uploading — continuing..." : "Tap to replace"}
+                  {autoAdvancing ? "Enviando — continuando..." : "Toque para substituir"}
                 </p>
               </div>
             ) : (
               <div className="text-center">
-                <p className="text-sm font-semibold">Tap to upload</p>
-                <p className="text-xs text-muted-foreground mt-1">JPG, PNG or PDF · Max 10MB</p>
+                <p className="text-sm font-semibold">Toque para enviar</p>
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG ou PDF · Máx 10MB</p>
               </div>
             )}
             <input
@@ -187,7 +187,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mt-5 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Your data is <strong className="text-foreground">encrypted</strong> and securely stored. We never share your documents.
+            Seus dados estão <strong className="text-foreground">criptografados</strong> e armazenados com segurança. Nunca compartilhamos seus documentos.
           </p>
         </div>
 
@@ -200,7 +200,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
               className="h-14 rounded-full px-6 text-sm font-semibold text-muted-foreground"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
-              Back
+              Voltar
             </Button>
           )}
           <Button
@@ -211,12 +211,12 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Submitting...
+                Enviando...
               </span>
             ) : isLastStep ? (
-              "Submit Documents"
+              "Enviar Documentos"
             ) : (
-              "Continue"
+              "Continuar"
             )}
           </Button>
         </div>
