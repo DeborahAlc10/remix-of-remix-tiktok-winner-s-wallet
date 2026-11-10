@@ -6,6 +6,7 @@ import BankDetailsScreen from "@/components/BankDetailsScreen";
 import DashboardScreen from "@/components/DashboardScreen";
 import BonusScreen from "@/components/BonusScreen";
 import { useUserProgress } from "@/hooks/useUserProgress";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 
 type Screen = "login" | "welcome" | "documents" | "bank" | "bonus" | "dashboard";
 
@@ -22,6 +23,7 @@ const SESSION_KEYS = [
 
 const Index = () => {
   const { progress, loading, login, submitDocs, submitBank } = useUserProgress();
+  useVisitorTracking();
   const [screen, setScreen] = useState<Screen>("login");
   const [userName, setUserName] = useState("");
   const [isReverification, setIsReverification] = useState(false);

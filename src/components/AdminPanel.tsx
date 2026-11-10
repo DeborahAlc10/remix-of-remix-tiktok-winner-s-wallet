@@ -56,6 +56,7 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [totalVisitors, setTotalVisitors] = useState(0);
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -76,6 +77,7 @@ const AdminPanel = () => {
       return;
     }
     setUsers(data?.users ?? []);
+    setTotalVisitors(data?.totalVisitors ?? 0);
     setAuthed(true);
     setLoading(false);
   }, []);
@@ -200,12 +202,33 @@ const AdminPanel = () => {
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <StatCard label="Total de Usuários" value={stats.total} />
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+          <StatCard label="Total de Visitantes" value={totalVisitors} />
+          <StatCard label="Leads Capturados" value={stats.total} accent="warning" />
           <StatCard label="Documentos Enviados" value={stats.docsDone} accent="warning" />
           <StatCard label="PIX Enviado" value={stats.bankDone} accent="success" />
           <StatCard label="Dia 7+ (Falhou)" value={stats.day7Plus} accent="destructive" />
         </div>
+
+        {totalVisitors > 0 && (
+          <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+            <div className="flex items-center justify-between text-sm">
+              <span className="text-muted-foreground">Taxa de conversão (visitantes → leads)</span>
+              <span className="font-bold tabular-nums">
+                {((stats.total / totalVisitors) * 100).toFixed(1)}%
+              </span>
+            </div>
+            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full bg-warning rounded-full transition-all"
+                style={{ width: `${Math.min((stats.total / totalVisitors) * 100, 100)}%` }}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              {totalVisitors - stats.total} visitantes acessaram a página mas não digitaram o e-mail.
+            </p>
+          </div>
+        )}
 
         {/* Table */}
         <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
