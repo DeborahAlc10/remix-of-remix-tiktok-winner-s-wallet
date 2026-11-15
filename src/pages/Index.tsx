@@ -88,7 +88,7 @@ const Index = () => {
     return (
       <div className="max-w-md mx-auto min-h-screen bg-surface shadow-lg flex flex-col items-center justify-center gap-4">
         <div className="animate-spin rounded-full h-10 w-10 border-4 border-foreground/20 border-t-foreground" />
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <p className="text-sm text-muted-foreground">Loading...</p>
       </div>
     );
   }

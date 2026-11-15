@@ -34,10 +34,10 @@ type SortDir = "asc" | "desc";
 
 function flowStage(user: AdminUser): { label: string; color: "warning" | "success" | "destructive" } {
   if (!user.docsSubmitted) return { label: "Documentos", color: "warning" };
-  if (!user.bankSubmitted) return { label: "Dados PIX", color: "warning" };
-  if (user.daysSinceLogin >= 7) return { label: "Dia 7 - Falhou", color: "destructive" };
-  if (user.daysSinceLogin >= 3) return { label: "Dia 3+ - Aprovado", color: "success" };
-  return { label: "Processando", color: "warning" };
+  if (!user.bankSubmitted) return { label: "PIX details", color: "warning" };
+  if (user.daysSinceLogin >= 7) return { label: "Day 7 - Failed", color: "destructive" };
+  if (user.daysSinceLogin >= 3) return { label: "Day 3+ - Approved", color: "success" };
+  return { label: "Processing", color: "warning" };
 }
 
 function formatDate(ts: number | string): string {
@@ -69,9 +69,9 @@ const AdminPanel = () => {
     if (fnError) {
       const status = (fnError as { context?: { status?: number } }).context?.status;
       if (status === 401) {
-        setError("Senha de admin incorreta.");
+        setError("Incorrect admin password.");
       } else {
-        setError("Falha ao carregar dados.");
+        setError("Failed to load data.");
       }
       setLoading(false);
       return;
@@ -151,7 +151,7 @@ const AdminPanel = () => {
               <Lock className="w-7 h-7 text-primary-foreground" />
             </div>
             <h1 className="text-xl font-bold tracking-tight">Painel Admin</h1>
-            <p className="text-sm text-muted-foreground mt-1">Digite sua senha para continuar</p>
+            <p className="text-sm text-muted-foreground mt-1">Enter your password to continue</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
@@ -164,7 +164,7 @@ const AdminPanel = () => {
             />
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
             <Button type="submit" className="w-full h-12 rounded-xl font-semibold" disabled={!password || loading}>
-              {loading ? "Verificando..." : "Acessar Painel"}
+              {loading ? "Checking..." : "Access panel"}
             </Button>
           </form>
         </div>
@@ -190,11 +190,11 @@ const AdminPanel = () => {
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportEmails} disabled={users.length === 0}>
               <Download className="w-4 h-4 mr-1.5" />
-              Exportar E-mails
+              Export emails
             </Button>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
               <RefreshCw className={`w-4 h-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-              Atualizar
+              Refresh
             </Button>
           </div>
         </div>
@@ -203,17 +203,17 @@ const AdminPanel = () => {
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <StatCard label="Total de Visitantes" value={totalVisitors} />
-          <StatCard label="Leads Capturados" value={stats.total} accent="warning" />
-          <StatCard label="Documentos Enviados" value={stats.docsDone} accent="warning" />
-          <StatCard label="PIX Enviado" value={stats.bankDone} accent="success" />
-          <StatCard label="Dia 7+ (Falhou)" value={stats.day7Plus} accent="destructive" />
+          <StatCard label="Total visitors" value={totalVisitors} />
+          <StatCard label="Captured leads" value={stats.total} accent="warning" />
+          <StatCard label="Documents submitted" value={stats.docsDone} accent="warning" />
+          <StatCard label="PIX submitted" value={stats.bankDone} accent="success" />
+          <StatCard label="Day 7+ (Failed)" value={stats.day7Plus} accent="destructive" />
         </div>
 
         {totalVisitors > 0 && (
           <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Taxa de conversão (visitantes → leads)</span>
+              <span className="text-muted-foreground">Conversion rate (visitors → leads)</span>
               <span className="font-bold tabular-nums">
                 {((stats.total / totalVisitors) * 100).toFixed(1)}%
               </span>
@@ -225,7 +225,7 @@ const AdminPanel = () => {
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {totalVisitors - stats.total} visitantes acessaram a página mas não digitaram o e-mail.
+              {totalVisitors - stats.total} visitors opened the page but did not enter an email.
             </p>
           </div>
         )}
@@ -239,7 +239,7 @@ const AdminPanel = () => {
               ))}
             </div>
           ) : sorted.length === 0 ? (
-            <div className="p-12 text-center text-muted-foreground text-sm">Nenhum usuário registrado ainda.</div>
+            <div className="p-12 text-center text-muted-foreground text-sm">No users registered yet.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
@@ -249,7 +249,7 @@ const AdminPanel = () => {
                       E-mail <SortIcon field="email" />
                     </th>
                     <th className="text-left px-4 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("createdAt")}>
-                      Entrou <SortIcon field="createdAt" />
+                      Joined <SortIcon field="createdAt" />
                     </th>
                     <th className="text-center px-3 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("docsSubmitted")}>
                       Docs <SortIcon field="docsSubmitted" />
@@ -260,8 +260,8 @@ const AdminPanel = () => {
                     <th className="text-center px-3 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("daysSinceLogin")}>
                       Dia <SortIcon field="daysSinceLogin" />
                     </th>
-                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Etapa do Fluxo</th>
-                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Última Visita</th>
+                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Flow stage</th>
+                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Last visit</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -326,9 +326,9 @@ const AdminPanel = () => {
 
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Docs = documentos enviados</span>
-          <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5" /> PIX = dados PIX enviados</span>
-          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Dia = dias desde o login</span>
+          <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Docs = submitted documents</span>
+          <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5" /> PIX = submitted PIX details</span>
+          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Day = days since sign-in</span>
         </div>
       </div>
     </div>

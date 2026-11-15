@@ -35,12 +35,12 @@ interface WalletStatus {
 }
 
 const TIMELINE_STEPS: TimelineStep[] = [
-  { id: "doc_received", label: "Documentos Recebidos", description: "Seus documentos foram enviados e criptografados" },
-  { id: "doc_reviewing", label: "Revisão de Identidade", description: "Nossa equipe está verificando seus documentos de identidade" },
-  { id: "doc_approved", label: "Identidade Aprovada", description: "Sua identidade foi verificada com sucesso" },
-  { id: "bank_verifying", label: "Verificação PIX", description: "Verificando sua chave PIX com nosso processador de pagamentos" },
-  { id: "bank_failed", label: "Falha na Verificação PIX", description: "Não conseguimos verificar sua chave PIX. Por favor, informe novamente." },
-  { id: "bank_completed", label: "Fundos Prontos", description: "Sua conta está totalmente verificada e os fundos estão prontos para saque" },
+  { id: "doc_received", label: "Documents received", description: "Your documents were submitted and encrypted" },
+  { id: "doc_reviewing", label: "Identity review", description: "Our team is reviewing your identity documents" },
+  { id: "doc_approved", label: "Identity approved", description: "Your identity was successfully verified" },
+  { id: "bank_verifying", label: "Verificação PIX", description: "Verifying your PIX key with our payment processor" },
+  { id: "bank_failed", label: "PIX verification failed", description: "We couldn't verify your PIX key. Please enter it again." },
+  { id: "bank_completed", label: "Funds ready", description: "Your account is fully verified and your funds are ready to withdraw" },
 ];
 
 export function useWalletStatus(refreshKey?: number): WalletStatus {
@@ -74,8 +74,8 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
 
     activities.push({
       id: "evt_encrypt",
-      label: "Documentos criptografados e armazenados",
-      description: "Seus 3 documentos foram protegidos com criptografia de ponta a ponta",
+      label: "Documents encrypted and stored",
+      description: "Your 3 documents were protected with end-to-end encryption",
       icon: "shield",
       timestamp: "Dia 0",
     });
@@ -83,8 +83,8 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
     if (days >= 1) {
       activities.push({
         id: "evt_review_start",
-        label: "Revisão de identidade iniciada",
-        description: "Sistema de verificação automatizada começou a processar seus documentos",
+        label: "Identity review started",
+        description: "The automated verification system started processing your documents",
         icon: "clock",
         timestamp: "Dia 1",
       });
@@ -93,8 +93,8 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
     if (days >= 3) {
       activities.push({
         id: "evt_doc_approved",
-        label: "Identidade verificada",
-        description: "Seus documentos de identidade passaram nas verificações",
+        label: "Identity verified",
+        description: "Your identity documents passed the required checks",
         icon: "check",
         timestamp: "Dia 3",
       });
@@ -103,8 +103,8 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
     if (days >= 4) {
       activities.push({
         id: "evt_bank_start",
-        label: "Verificação PIX iniciada",
-        description: "Nosso processador de pagamentos começou a verificar sua chave PIX",
+        label: "PIX verification started",
+        description: "Our payment processor started verifying your PIX key",
         icon: "bank",
         timestamp: "Dia 4",
       });
@@ -113,16 +113,16 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
     if (cashoutFailed) {
       activities.push({
         id: "evt_bank_failed",
-        label: "Falha na verificação PIX",
-        description: "Sua chave PIX não pôde ser verificada. Por favor, informe novamente seus dados de saque.",
+        label: "PIX verification failed",
+        description: "Your PIX key could not be verified. Please enter your withdrawal details again.",
         icon: "alert",
         timestamp: "Dia 7",
       });
     } else if (cashoutCompleted) {
       activities.push({
         id: "evt_bank_done",
-        label: "Verificação PIX concluída",
-        description: "Sua chave PIX está verificada e pronta para uso",
+        label: "PIX verification completed",
+        description: "Your PIX key is verified and ready to use",
         icon: "check",
         timestamp: "Dia 5",
       });
@@ -131,37 +131,37 @@ export function useWalletStatus(refreshKey?: number): WalletStatus {
     if (hasBonus) {
       activities.unshift({
         id: "evt_bonus",
-        label: "Bônus de compensação creditado",
-        description: "Bônus de R$ 450,00 adicionado ao seu saldo pelo atraso na verificação",
+        label: "Compensation bonus credited",
+        description: "A R$ 450.00 bonus was added to your balance due to the verification delay",
         icon: "gift",
-        timestamp: "Hoje",
+        timestamp: "Today",
       });
     }
 
     // Estimate completion
     let estimatedCompletion: string;
     if (cashoutFailed) {
-      estimatedCompletion = "Aguardando nova verificação";
+      estimatedCompletion = "Awaiting re-verification";
     } else if (cashoutCompleted) {
-      estimatedCompletion = "Concluído";
+      estimatedCompletion = "Completed";
     } else if (days >= 3) {
       const remaining = Math.max(1, 7 - days);
-      estimatedCompletion = `~${remaining} dia${remaining > 1 ? "s" : ""} restante${remaining > 1 ? "s" : ""}`;
+      estimatedCompletion = `~${remaining} day${remaining > 1 ? "s" : ""} remaining${remaining > 1 ? "s" : ""}`;
     } else {
-      estimatedCompletion = "~5-7 dias restantes";
+      estimatedCompletion = "~5–7 days remaining";
     }
 
     return {
       daysSinceLogin: days,
       docStatus: docApproved ? "approved" : "under_review",
-      docLabel: docApproved ? "Documentos Aprovados" : "Documentos em Revisão",
+      docLabel: docApproved ? "Documents approved" : "Documents under review",
       docColor: docApproved ? "success" : "warning",
       cashoutStatus: cashoutFailed ? "failed" : cashoutCompleted ? "completed" : "processing",
       cashoutLabel: cashoutFailed
-        ? "Falhou - Verificação PIX necessária"
+        ? "Failed - PIX verification required"
         : cashoutCompleted
-        ? "Verificado e pronto"
-        : "Processando (3-5 dias úteis)",
+        ? "Verified and ready"
+        : "Processing (3–5 business days)",
       cashoutColor: cashoutFailed ? "destructive" : "warning",
       currentStage,
       timeline: TIMELINE_STEPS,
