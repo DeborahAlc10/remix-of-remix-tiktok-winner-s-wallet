@@ -17,9 +17,9 @@ interface UploadField {
 }
 
 const fields: UploadField[] = [
-  { label: "Identity Document (Front)", shortLabel: "ID Front", description: "Upload the front of your ID, driver's license, or passport", key: "id_front", icon: FileText },
+  { label: "Identity Document (Front)", shortLabel: "ID Front", description: "Upload the front of your ID, passport, or driver's license", key: "id_front", icon: FileText },
   { label: "Identity Document (Back)", shortLabel: "ID Back", description: "Upload the back of your identity document", key: "id_back", icon: FileText },
-  { label: "Selfie with ID", shortLabel: "Selfie", description: "Take a selfie holding your identity document", key: "selfie", icon: User },
+  { label: "Selfie with Document", shortLabel: "Selfie", description: "Take a selfie holding your identity document", key: "selfie", icon: User },
 ];
 
 const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps) => {
@@ -88,7 +88,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
         {/* Progress bar */}
         <div className="mb-5">
           <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
-            <span>{uploadedCount} de {fields.length} uploaded</span>
+            <span>{uploadedCount} of {fields.length} uploaded</span>
             <span>{Math.round(progressPercent)}%</span>
           </div>
           <div className="relative h-2 bg-secondary rounded-full overflow-hidden">
@@ -133,7 +133,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
             </div>
             <div>
               <p className="text-sm font-semibold">
-                Document {currentStep + 1} de {fields.length}
+                Document {currentStep + 1} of {fields.length}
               </p>
               <p className="text-xs text-muted-foreground">{field.shortLabel}</p>
             </div>
@@ -171,7 +171,7 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
             ) : (
               <div className="text-center">
                 <p className="text-sm font-semibold">Tap to upload</p>
-                <p className="text-xs text-muted-foreground mt-1">JPG, PNG, or PDF · Max 10MB</p>
+                <p className="text-xs text-muted-foreground mt-1">JPG, PNG or PDF · Max 10MB</p>
               </div>
             )}
             <input
@@ -211,12 +211,12 @@ const DocumentUploadScreen = ({ userName, onSubmit }: DocumentUploadScreenProps)
             {submitting ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-primary-foreground/40 border-t-primary-foreground rounded-full animate-spin" />
-                Uploading...
+                Submitting...
               </span>
             ) : isLastStep ? (
-              "Submit documents"
+              "Submit Documents"
             ) : (
-              "Continuar"
+              "Continue"
             )}
           </Button>
         </div>

@@ -46,7 +46,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-lg font-bold">Contact support</DialogTitle>
+          <DialogTitle className="text-lg font-bold">Contact Support</DialogTitle>
           <DialogDescription className="text-sm text-muted-foreground">
             Have a question or need help? Fill out the form below and our team will get back to you as soon as possible.
           </DialogDescription>
@@ -54,7 +54,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-2">
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Full name</label>
+            <label className="text-sm font-semibold text-foreground">Full Name</label>
             <Input
               placeholder="Enter your full name"
               value={name}
@@ -64,10 +64,10 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Email address</label>
+            <label className="text-sm font-semibold text-foreground">Email Address</label>
             <Input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Enter your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               maxLength={255}
@@ -81,17 +81,17 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
                 <SelectValue placeholder="Select a subject" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="general">General question</SelectItem>
-                <SelectItem value="transaction">Transaction issue</SelectItem>
-                <SelectItem value="account">Account issue</SelectItem>
-                <SelectItem value="withdrawal">Withdrawal status</SelectItem>
+                <SelectItem value="general">General Question</SelectItem>
+                <SelectItem value="transaction">Transaction Issue</SelectItem>
+                <SelectItem value="account">Account Problem</SelectItem>
+                <SelectItem value="withdrawal">Withdrawal Status</SelectItem>
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-sm font-semibold text-foreground">Mensagem</label>
+            <label className="text-sm font-semibold text-foreground">Message</label>
             <Textarea
               placeholder="Describe your question or issue in detail..."
               value={message}
@@ -102,7 +102,7 @@ const ContactSupportDialog = ({ open, onOpenChange }: ContactSupportDialogProps)
           </div>
 
           <Button type="submit" className="w-full font-bold">
-            Send message
+            Send Message
           </Button>
         </form>
       </DialogContent>

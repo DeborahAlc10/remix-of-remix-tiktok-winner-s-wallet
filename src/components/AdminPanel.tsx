@@ -33,8 +33,8 @@ type SortField = "createdAt" | "daysSinceLogin" | "email" | "docsSubmitted" | "b
 type SortDir = "asc" | "desc";
 
 function flowStage(user: AdminUser): { label: string; color: "warning" | "success" | "destructive" } {
-  if (!user.docsSubmitted) return { label: "Documentos", color: "warning" };
-  if (!user.bankSubmitted) return { label: "PIX details", color: "warning" };
+  if (!user.docsSubmitted) return { label: "Documents", color: "warning" };
+  if (!user.bankSubmitted) return { label: "Bank details", color: "warning" };
   if (user.daysSinceLogin >= 7) return { label: "Day 7 - Failed", color: "destructive" };
   if (user.daysSinceLogin >= 3) return { label: "Day 3+ - Approved", color: "success" };
   return { label: "Processing", color: "warning" };
@@ -42,12 +42,12 @@ function flowStage(user: AdminUser): { label: string; color: "warning" | "succes
 
 function formatDate(ts: number | string): string {
   const date = typeof ts === "number" ? new Date(ts) : new Date(ts);
-  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" });
+  return date.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
 }
 
 function formatDateTime(ts: number | string): string {
   const date = typeof ts === "number" ? new Date(ts) : new Date(ts);
-  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleDateString("en-US", { month: "short", day: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
 
 const AdminPanel = () => {
@@ -56,7 +56,6 @@ const AdminPanel = () => {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [totalVisitors, setTotalVisitors] = useState(0);
   const [sortField, setSortField] = useState<SortField>("createdAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -69,7 +68,7 @@ const AdminPanel = () => {
     if (fnError) {
       const status = (fnError as { context?: { status?: number } }).context?.status;
       if (status === 401) {
-        setError("Incorrect admin password.");
+        setError("Wrong admin password.");
       } else {
         setError("Failed to load data.");
       }
@@ -77,7 +76,6 @@ const AdminPanel = () => {
       return;
     }
     setUsers(data?.users ?? []);
-    setTotalVisitors(data?.totalVisitors ?? 0);
     setAuthed(true);
     setLoading(false);
   }, []);
@@ -150,13 +148,13 @@ const AdminPanel = () => {
             <div className="w-14 h-14 rounded-2xl bg-foreground flex items-center justify-center mb-4">
               <Lock className="w-7 h-7 text-primary-foreground" />
             </div>
-            <h1 className="text-xl font-bold tracking-tight">Painel Admin</h1>
+            <h1 className="text-xl font-bold tracking-tight">Admin Panel</h1>
             <p className="text-sm text-muted-foreground mt-1">Enter your password to continue</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
             <Input
               type="password"
-              placeholder="Senha de admin"
+              placeholder="Admin password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="h-12 rounded-xl"
@@ -164,7 +162,7 @@ const AdminPanel = () => {
             />
             {error && <p className="text-sm text-destructive text-center">{error}</p>}
             <Button type="submit" className="w-full h-12 rounded-xl font-semibold" disabled={!password || loading}>
-              {loading ? "Checking..." : "Access panel"}
+              {loading ? "Verifying..." : "Access Panel"}
             </Button>
           </form>
         </div>
@@ -185,12 +183,12 @@ const AdminPanel = () => {
         <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5" />
-            <span className="font-bold tracking-tight">Painel Admin</span>
+            <span className="font-bold tracking-tight">Admin Panel</span>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleExportEmails} disabled={users.length === 0}>
               <Download className="w-4 h-4 mr-1.5" />
-              Export emails
+              Export Emails
             </Button>
             <Button variant="outline" size="sm" onClick={handleRefresh} disabled={loading}>
               <RefreshCw className={`w-4 h-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
@@ -202,33 +200,12 @@ const AdminPanel = () => {
 
       <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
         {/* Stats */}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-          <StatCard label="Total visitors" value={totalVisitors} />
-          <StatCard label="Captured leads" value={stats.total} accent="warning" />
-          <StatCard label="Documents submitted" value={stats.docsDone} accent="warning" />
-          <StatCard label="PIX submitted" value={stats.bankDone} accent="success" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <StatCard label="Total Users" value={stats.total} />
+          <StatCard label="Docs Submitted" value={stats.docsDone} accent="warning" />
+          <StatCard label="Bank Submitted" value={stats.bankDone} accent="success" />
           <StatCard label="Day 7+ (Failed)" value={stats.day7Plus} accent="destructive" />
         </div>
-
-        {totalVisitors > 0 && (
-          <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Conversion rate (visitors → leads)</span>
-              <span className="font-bold tabular-nums">
-                {((stats.total / totalVisitors) * 100).toFixed(1)}%
-              </span>
-            </div>
-            <div className="mt-2 h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full bg-warning rounded-full transition-all"
-                style={{ width: `${Math.min((stats.total / totalVisitors) * 100, 100)}%` }}
-              />
-            </div>
-            <p className="text-xs text-muted-foreground mt-2">
-              {totalVisitors - stats.total} visitors opened the page but did not enter an email.
-            </p>
-          </div>
-        )}
 
         {/* Table */}
         <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
@@ -246,7 +223,7 @@ const AdminPanel = () => {
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
                     <th className="text-left px-4 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors" onClick={() => handleSort("email")}>
-                      E-mail <SortIcon field="email" />
+                      Email <SortIcon field="email" />
                     </th>
                     <th className="text-left px-4 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("createdAt")}>
                       Joined <SortIcon field="createdAt" />
@@ -255,13 +232,13 @@ const AdminPanel = () => {
                       Docs <SortIcon field="docsSubmitted" />
                     </th>
                     <th className="text-center px-3 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("bankSubmitted")}>
-                      PIX <SortIcon field="bankSubmitted" />
+                      Bank <SortIcon field="bankSubmitted" />
                     </th>
                     <th className="text-center px-3 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("daysSinceLogin")}>
-                      Dia <SortIcon field="daysSinceLogin" />
+                      Day <SortIcon field="daysSinceLogin" />
                     </th>
-                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Flow stage</th>
-                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Last visit</th>
+                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Flow Stage</th>
+                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Last Seen</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -283,16 +260,16 @@ const AdminPanel = () => {
                         </td>
                         <td className="px-3 py-3 text-center">
                           {user.docsSubmitted ? (
-                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[10px]">Sim</Badge>
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[10px]">Yes</Badge>
                           ) : (
-                            <Badge variant="outline" className="text-[10px] text-muted-foreground">Não</Badge>
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground">No</Badge>
                           )}
                         </td>
                         <td className="px-3 py-3 text-center">
                           {user.bankSubmitted ? (
-                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[10px]">Sim</Badge>
+                            <Badge variant="outline" className="bg-success/10 text-success border-success/20 text-[10px]">Yes</Badge>
                           ) : (
-                            <Badge variant="outline" className="text-[10px] text-muted-foreground">Não</Badge>
+                            <Badge variant="outline" className="text-[10px] text-muted-foreground">No</Badge>
                           )}
                         </td>
                         <td className="px-3 py-3 text-center">
@@ -327,8 +304,8 @@ const AdminPanel = () => {
         {/* Legend */}
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5"><FileText className="w-3.5 h-3.5" /> Docs = submitted documents</span>
-          <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5" /> PIX = submitted PIX details</span>
-          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Day = days since sign-in</span>
+          <span className="flex items-center gap-1.5"><Building className="w-3.5 h-3.5" /> Bank = submitted bank details</span>
+          <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> Day = days since login</span>
         </div>
       </div>
     </div>

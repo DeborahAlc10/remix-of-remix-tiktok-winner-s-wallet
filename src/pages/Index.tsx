@@ -6,7 +6,6 @@ import BankDetailsScreen from "@/components/BankDetailsScreen";
 import DashboardScreen from "@/components/DashboardScreen";
 import BonusScreen from "@/components/BonusScreen";
 import { useUserProgress } from "@/hooks/useUserProgress";
-import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 
 type Screen = "login" | "welcome" | "documents" | "bank" | "bonus" | "dashboard";
 
@@ -23,7 +22,6 @@ const SESSION_KEYS = [
 
 const Index = () => {
   const { progress, loading, login, submitDocs, submitBank } = useUserProgress();
-  useVisitorTracking();
   const [screen, setScreen] = useState<Screen>("login");
   const [userName, setUserName] = useState("");
   const [isReverification, setIsReverification] = useState(false);
@@ -86,9 +84,8 @@ const Index = () => {
 
   if (loading) {
     return (
-      <div className="max-w-md mx-auto min-h-screen bg-surface shadow-lg flex flex-col items-center justify-center gap-4">
-        <div className="animate-spin rounded-full h-10 w-10 border-4 border-foreground/20 border-t-foreground" />
-        <p className="text-sm text-muted-foreground">Loading...</p>
+      <div className="max-w-md mx-auto min-h-screen bg-background shadow-lg flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground" />
       </div>
     );
   }

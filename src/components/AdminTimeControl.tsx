@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, FastForward, Rewind, Clock, X, RotateCcw } from "lucide-react";
 
 interface AdminTimeControlProps {
@@ -9,12 +9,6 @@ interface AdminTimeControlProps {
 
 const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeControlProps) => {
   const [open, setOpen] = useState(false);
-
-  const isAdmin = useMemo(() => {
-    return new URLSearchParams(window.location.search).has("admin");
-  }, []);
-
-  if (!isAdmin) return null;
 
   const setDay = (day: number) => {
     const clamped = Math.max(0, Math.min(10, day));
@@ -40,18 +34,18 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
   }
 
   const stageLabel =
-    currentDay < 1 ? "Documents received" :
-    currentDay < 3 ? "Identity review" :
-    currentDay < 5 ? "PIX verification" :
-    currentDay >= 7 ? "PIX failed" :
-    "Funds ready";
+    currentDay < 1 ? "Documents Received" :
+    currentDay < 3 ? "Identity Review" :
+    currentDay < 5 ? "Bank Verification" :
+    currentDay >= 7 ? "Bank Failed" :
+    "Funds Ready";
 
   return (
     <div className="fixed bottom-5 right-5 z-50 rounded-2xl bg-card border border-border shadow-xl p-4 w-64 space-y-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Clock className="w-4 h-4 text-primary" />
-          <span className="text-xs font-semibold">Admin preview</span>
+          <span className="text-xs font-semibold">Admin Preview</span>
         </div>
         <button onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
           <X className="w-4 h-4" />
@@ -59,8 +53,8 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
       </div>
 
       <div className="text-center py-2">
-        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Current day</p>
-        <p className="text-2xl font-bold">Dia {currentDay}</p>
+        <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Current Day</p>
+        <p className="text-2xl font-bold">Day {currentDay}</p>
         <p className="text-[11px] text-muted-foreground mt-0.5">{stageLabel}</p>
       </div>
 
@@ -68,7 +62,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
         <button
           onClick={() => setDay(0)}
           className="w-8 h-8 rounded-lg bg-secondary hover:bg-accent flex items-center justify-center transition-colors"
-          aria-label="Return to day 0"
+          aria-label="Reset to day 0"
         >
           <Rewind className="w-3.5 h-3.5" />
         </button>
@@ -91,7 +85,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
         <button
           onClick={() => setDay(7)}
           className="w-8 h-8 rounded-lg bg-secondary hover:bg-accent flex items-center justify-center transition-colors"
-          aria-label="Jump to failure"
+          aria-label="Skip to failure"
         >
           <FastForward className="w-3.5 h-3.5" />
         </button>
@@ -118,7 +112,7 @@ const AdminTimeControl = ({ currentDay, onDayChange, onFullReset }: AdminTimeCon
         className="w-full h-9 rounded-lg bg-destructive/10 text-destructive text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-destructive/20 transition-colors"
       >
         <RotateCcw className="w-3.5 h-3.5" />
-        Reset everything (return to login)
+        Reset everything (back to login)
       </button>
     </div>
   );

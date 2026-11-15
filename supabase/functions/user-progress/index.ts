@@ -118,26 +118,7 @@ Deno.serve(async (req) => {
       return json({ error: "missing action" }, 400);
     }
 
-    // Anonymous visit tracking — no token required, no email required.
-    // Records every page load so we can measure how many visitors never
-    // even type their email (the gap between ad clicks and leads captured).
-    if (action === "trackVisit") {
-      const sessionId = (body as Record<string, unknown>).sessionId as string | undefined;
-      if (!sessionId || typeof sessionId !== "string") {
-        return json({ error: "missing sessionId" }, 400);
-      }
-      const ua = req.headers.get("user-agent") ?? null;
-      const { error: insErr } = await supabase
-        .from("visitor_tracking")
-        .insert({ session_id: sessionId, user_agent: ua });
-      if (insErr) {
-        // Duplicate session_id in the same moment — not a real error, just ignore.
-        console.error("trackVisit insert error", insErr);
-      }
-      return json({ ok: true });
-    }
-
-    // Admin action: list all users + visitor stats (protected by admin password)
+    // Admin action: list all users (protected by admin password)
     if (action === "listAll") {
       if (adminPassword !== ADMIN_PASSWORD) {
         return json({ error: "unauthorized" }, 401);
@@ -147,12 +128,6 @@ Deno.serve(async (req) => {
         .select("email,user_name,docs_submitted,bank_submitted,withdrawal_method,login_ts,last_seen_ts,created_at")
         .order("created_at", { ascending: false });
       if (error) throw error;
-
-      const { count: totalVisitors, error: vErr } = await supabase
-        .from("visitor_tracking")
-        .select("*", { count: "exact", head: true });
-      if (vErr) console.error("visitor count error", vErr);
-
       const now = Date.now();
       const rows = (data ?? []).map((row: any) => ({
         ...publicShape(row),
@@ -160,7 +135,7 @@ Deno.serve(async (req) => {
         createdAt: row.created_at,
         daysSinceLogin: Math.floor((now - Number(row.login_ts)) / (1000 * 60 * 60 * 24)),
       }));
-      return json({ users: rows, totalVisitors: totalVisitors ?? 0 });
+      return json({ users: rows });
     }
 
     if (!email || typeof email !== "string") {

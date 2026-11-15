@@ -10,8 +10,8 @@ interface WelcomeScreenProps {
 
 const benefits = [
   { icon: ShieldCheck, text: "Secure identity verification" },
-  { icon: Clock, text: "Fast — just 3 documents, about 1 minute" },
-  { icon: CheckCircle, text: "Funds released within 1–3 business days via PIX" },
+  { icon: Clock, text: "Quick — only 3 documents, about 1 minute" },
+  { icon: CheckCircle, text: "Funds released within 1-3 business days" },
 ];
 
 // Pseudo-random avatar colors for social proof
@@ -62,7 +62,7 @@ const CountdownTimer = () => {
     <div className="flex items-center justify-center gap-2 py-2.5 px-4 rounded-full bg-destructive/10 border border-destructive/20">
       <Flame className="w-4 h-4 text-destructive" />
       <span className="text-xs font-semibold text-destructive">
-        Your reward expires in <span className="tabular-nums">{display}</span>
+        Reward expires in <span className="tabular-nums">{display}</span>
       </span>
     </div>
   );
@@ -116,11 +116,11 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
           <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/[0.08] pointer-events-none" />
           <div className="flex items-center justify-center gap-2 mb-3 relative z-10">
             <Gift className="w-5 h-5 text-success" />
-            <span className="text-xs uppercase tracking-widest opacity-60 font-semibold">Available balance</span>
+            <span className="text-xs uppercase tracking-widest opacity-60 font-semibold">Available Balance</span>
           </div>
-          <p className="text-[44px] font-bold tracking-tighter leading-none text-center relative z-10">R$ 4.596,00</p>
+          <p className="text-[44px] font-bold tracking-tighter leading-none text-center relative z-10">$2,893.27</p>
           <p className="text-[11px] opacity-50 mt-3 text-center relative z-10">
-            Verified reward from the TikTok Creator Fund
+            Verified reward from TikTok Creator Fund
           </p>
         </div>
 
@@ -130,7 +130,7 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
         </div>
 
         <p className="text-sm text-muted-foreground text-center mb-6">
-          To withdraw your funds, we need to verify your identity. This is a one-time process required by TikTok's payment policy.
+          To withdraw your funds, we need to verify your identity. This is a one-time process required by TikTok's payout policy.
         </p>
 
         {/* Benefits list */}
@@ -160,10 +160,10 @@ const WelcomeScreen = ({ userName, onContinue }: WelcomeScreenProps) => {
             onClick={onContinue}
             className="w-full h-14 rounded-full text-base font-semibold"
           >
-            Continue to verification
+            Continue to Verification
           </Button>
           <p className="text-[10px] text-muted-foreground/60 text-center mt-3">
-            By continuing, you agree to TikTok's verification terms
+            By continuing you agree to TikTok's verification terms
           </p>
         </div>
       </div>
