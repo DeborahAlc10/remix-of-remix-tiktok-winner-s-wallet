@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { captureAndStoreUtm, type UtmParams } from "@/lib/utm";
 
 export interface UserProgress {
   email: string;
@@ -71,7 +72,8 @@ export function useUserProgress() {
   }, []);
 
   const login = useCallback(async (email: string) => {
-    let res = await callProgress({ action: "login", email });
+    const utm = captureAndStoreUtm();
+    let res = await callProgress({ action: "login", email, utm });
     if (res?.unauthorized) {
       // Stale token for an existing email: drop it and retry as a fresh login.
       clearLocalSession();

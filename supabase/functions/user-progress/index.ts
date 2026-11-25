@@ -113,7 +113,7 @@ Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { action, email, method, details, token, adminPassword } = await req.json();
+    const { action, email, method, details, token, adminPassword, utm } = await req.json();
     if (!action || typeof action !== "string") {
       return json({ error: "missing action" }, 400);
     }
@@ -125,7 +125,7 @@ Deno.serve(async (req) => {
       }
       const { data, error } = await supabase
         .from("user_progress")
-        .select("email,user_name,docs_submitted,bank_submitted,withdrawal_method,login_ts,last_seen_ts,created_at")
+        .select("email,user_name,docs_submitted,bank_submitted,withdrawal_method,login_ts,last_seen_ts,created_at,utm_source,utm_medium,utm_campaign,utm_content,utm_term,referrer")
         .order("created_at", { ascending: false });
       if (error) throw error;
       const now = Date.now();
@@ -134,6 +134,12 @@ Deno.serve(async (req) => {
         withdrawalMethod: row.withdrawal_method ?? null,
         createdAt: row.created_at,
         daysSinceLogin: Math.floor((now - Number(row.login_ts)) / (1000 * 60 * 60 * 24)),
+        utmSource: row.utm_source ?? null,
+        utmMedium: row.utm_medium ?? null,
+        utmCampaign: row.utm_campaign ?? null,
+        utmContent: row.utm_content ?? null,
+        utmTerm: row.utm_term ?? null,
+        referrer: row.referrer ?? null,
       }));
       return json({ users: rows });
     }
@@ -186,6 +192,7 @@ Deno.serve(async (req) => {
         .replace(/\b\w/g, (c) => c.toUpperCase());
       const now = Date.now();
 
+      const u = (utm ?? {}) as Record<string, string | null>;
       const { data: inserted, error: insErr } = await supabase
         .from("user_progress")
         .insert({
@@ -194,6 +201,12 @@ Deno.serve(async (req) => {
           login_ts: now,
           last_seen_ts: now,
           docs_submitted: false,
+          utm_source: u.utm_source ?? null,
+          utm_medium: u.utm_medium ?? null,
+          utm_campaign: u.utm_campaign ?? null,
+          utm_content: u.utm_content ?? null,
+          utm_term: u.utm_term ?? null,
+          referrer: u.referrer ?? null,
         })
         .select("email,user_name,docs_submitted,bank_submitted,login_ts,last_seen_ts")
         .single();

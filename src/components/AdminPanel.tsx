@@ -27,6 +27,12 @@ interface AdminUser {
   lastSeenTs: number | null;
   createdAt: string;
   daysSinceLogin: number;
+  utmSource: string | null;
+  utmMedium: string | null;
+  utmCampaign: string | null;
+  utmContent: string | null;
+  utmTerm: string | null;
+  referrer: string | null;
 }
 
 type SortField = "createdAt" | "daysSinceLogin" | "email" | "docsSubmitted" | "bankSubmitted";
@@ -237,6 +243,8 @@ const AdminPanel = () => {
                     <th className="text-center px-3 py-3 font-semibold cursor-pointer select-none hover:text-foreground transition-colors whitespace-nowrap" onClick={() => handleSort("daysSinceLogin")}>
                       Day <SortIcon field="daysSinceLogin" />
                     </th>
+                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Source</th>
+                    <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Campaign</th>
                     <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Flow Stage</th>
                     <th className="text-left px-4 py-3 font-semibold whitespace-nowrap">Last Seen</th>
                   </tr>
@@ -274,6 +282,26 @@ const AdminPanel = () => {
                         </td>
                         <td className="px-3 py-3 text-center">
                           <span className="font-semibold tabular-nums">{user.daysSinceLogin}</span>
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-xs">
+                          {user.utmSource ? (
+                            <Badge variant="outline" className="text-[10px] bg-primary/10 text-primary border-primary/20">{user.utmSource}</Badge>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                          {user.utmMedium && (
+                            <span className="text-muted-foreground text-[10px] block mt-0.5">{user.utmMedium}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 whitespace-nowrap text-xs">
+                          {user.utmCampaign ? (
+                            <span className="text-foreground">{user.utmCampaign}</span>
+                          ) : (
+                            <span className="text-muted-foreground">—</span>
+                          )}
+                          {user.referrer && (
+                            <span className="text-muted-foreground text-[10px] block mt-0.5 truncate max-w-[120px]" title={user.referrer}>{user.referrer}</span>
+                          )}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap">
                           <Badge

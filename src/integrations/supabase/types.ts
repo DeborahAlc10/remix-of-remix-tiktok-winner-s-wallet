@@ -25,9 +25,15 @@ export type Database = {
           id: string
           last_seen_ts: number | null
           login_ts: number
+          referrer: string | null
           routing_number: string | null
           updated_at: string
           user_name: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
           withdrawal_method: string | null
         }
         Insert: {
@@ -40,9 +46,15 @@ export type Database = {
           id?: string
           last_seen_ts?: number | null
           login_ts: number
+          referrer?: string | null
           routing_number?: string | null
           updated_at?: string
           user_name: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           withdrawal_method?: string | null
         }
         Update: {
@@ -55,9 +67,15 @@ export type Database = {
           id?: string
           last_seen_ts?: number | null
           login_ts?: number
+          referrer?: string | null
           routing_number?: string | null
           updated_at?: string
           user_name?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
           withdrawal_method?: string | null
         }
         Relationships: []
